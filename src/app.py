@@ -2,52 +2,69 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_cors import CORS
 import os
 import json
+import csv # Import the csv module
 
-app = Flask(__name__, 
+# --- Vehicle Data Loading Function ---
+
+# Define the relative path to the CSV file: from src/app.py up one level (..) then into data/
+CSV_FILE_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'toyotacars.csv')
+
+def load_vehicles_from_csv(file_path):
+    """
+    Loads vehicle data from a CSV file, mapping 'msrp_approx' to 'price'.
+    """
+    vehicles = []
+    print(f"Attempting to load vehicle data from: {file_path}")
+    try:
+        # Use DictReader to treat each row as a dictionary with column headers as keys
+        with open(file_path, mode='r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                try:
+                    # Convert MSRP to an integer for use as 'price'
+                    price = int(row.get('msrp_approx', 0))
+                    year = int(row.get('year', 0))
+                except ValueError:
+                    # Skip rows where MSRP or year cannot be converted
+                    price = 0
+                    year = 0
+
+                if price > 0 and year > 0:
+                    vehicle = {
+                        "year": year,
+                        "make": row.get('make', 'Toyota'),
+                        "model": row.get('model', 'Unknown'),
+                        "trim": row.get('trim', 'Base'),
+                        "price": price, # Use 'msrp_approx' as the main price field
+                        "body_type": row.get('body_type'),
+                        "mpg_estimate": row.get('mpg_estimate')
+                        # You can add more fields if needed
+                    }
+                    vehicles.append(vehicle)
+        print(f"Successfully loaded {len(vehicles)} vehicles.")
+    except FileNotFoundError:
+        print(f"ERROR: CSV file not found at {file_path}. Please check your file path and structure.")
+    except Exception as e:
+        print(f"An unexpected error occurred while loading CSV: {e}")
+
+    return vehicles
+
+# Load the vehicle data when the app starts
+TOYOTA_VEHICLES = load_vehicles_from_csv(CSV_FILE_PATH)
+
+# --- Flask App Configuration ---
+
+app = Flask(__name__,
             template_folder='templates',
             static_folder='static')
 app.secret_key = 'toyota-financial-secret-key-2024'
 CORS(app)
 
-# Toyota vehicle database
-TOYOTA_VEHICLES = [
-    {"year": 2024, "make": "Toyota", "model": "Camry", "trim": "LE", "price": 26520},
-    {"year": 2024, "make": "Toyota", "model": "Camry", "trim": "XLE", "price": 31220},
-    {"year": 2024, "make": "Toyota", "model": "Camry", "trim": "XSE", "price": 33820},
-    {"year": 2024, "make": "Toyota", "model": "Corolla", "trim": "LE", "price": 22195},
-    {"year": 2024, "make": "Toyota", "model": "Corolla", "trim": "XLE", "price": 25295},
-    {"year": 2024, "make": "Toyota", "model": "Corolla", "trim": "SE", "price": 24195},
-    {"year": 2024, "make": "Toyota", "model": "RAV4", "trim": "LE", "price": 28010},
-    {"year": 2024, "make": "Toyota", "model": "RAV4", "trim": "XLE", "price": 32100},
-    {"year": 2024, "make": "Toyota", "model": "RAV4", "trim": "XSE", "price": 36000},
-    {"year": 2024, "make": "Toyota", "model": "Highlander", "trim": "LE", "price": 36820},
-    {"year": 2024, "make": "Toyota", "model": "Highlander", "trim": "XLE", "price": 40220},
-    {"year": 2024, "make": "Toyota", "model": "Highlander", "trim": "Limited", "price": 44820},
-    {"year": 2024, "make": "Toyota", "model": "Prius", "trim": "LE", "price": 27545},
-    {"year": 2024, "make": "Toyota", "model": "Prius", "trim": "XLE", "price": 30225},
-    {"year": 2024, "make": "Toyota", "model": "Tacoma", "trim": "SR", "price": 27250},
-    {"year": 2024, "make": "Toyota", "model": "Tacoma", "trim": "SR5", "price": 31250},
-    {"year": 2024, "make": "Toyota", "model": "Tacoma", "trim": "TRD Off-Road", "price": 37250},
-    {"year": 2024, "make": "Toyota", "model": "4Runner", "trim": "SR5", "price": 38105},
-    {"year": 2024, "make": "Toyota", "model": "4Runner", "trim": "TRD Off-Road", "price": 42105},
-    {"year": 2024, "make": "Toyota", "model": "4Runner", "trim": "Limited", "price": 47105},
-    {"year": 2023, "make": "Toyota", "model": "Camry", "trim": "LE", "price": 25660},
-    {"year": 2023, "make": "Toyota", "model": "Camry", "trim": "XLE", "price": 30160},
-    {"year": 2023, "make": "Toyota", "model": "Corolla", "trim": "LE", "price": 21550},
-    {"year": 2023, "make": "Toyota", "model": "Corolla", "trim": "XLE", "price": 24450},
-    {"year": 2023, "make": "Toyota", "model": "RAV4", "trim": "LE", "price": 27225},
-    {"year": 2023, "make": "Toyota", "model": "RAV4", "trim": "XLE", "price": 31115},
-    {"year": 2023, "make": "Toyota", "model": "Highlander", "trim": "LE", "price": 35620},
-    {"year": 2023, "make": "Toyota", "model": "Highlander", "trim": "XLE", "price": 39020},
-    {"year": 2023, "make": "Toyota", "model": "Prius", "trim": "LE", "price": 27545},
-    {"year": 2023, "make": "Toyota", "model": "Tacoma", "trim": "SR", "price": 26250},
-    {"year": 2023, "make": "Toyota", "model": "Tacoma", "trim": "SR5", "price": 30250},
-    {"year": 2023, "make": "Toyota", "model": "4Runner", "trim": "SR5", "price": 37105},
-    {"year": 2023, "make": "Toyota", "model": "4Runner", "trim": "TRD Off-Road", "price": 41105}
-]
+# --- Routes ---
 
 @app.route('/')
 def home():
+    # Now TOYOTA_VEHICLES contains the data from the CSV file
     return render_template('home.html', vehicles=TOYOTA_VEHICLES)
 
 @app.route('/preferences')
@@ -82,8 +99,10 @@ def calculate_payment():
     monthly_rate = interest_rate / 100 / 12
     
     if monthly_rate > 0:
+        # Standard annuity formula for monthly payment
         monthly_payment = loan_amount * (monthly_rate * (1 + monthly_rate)**loan_term) / ((1 + monthly_rate)**loan_term - 1)
     else:
+        # Handle zero interest rate
         monthly_payment = loan_amount / loan_term
     
     total_payment = monthly_payment * loan_term
