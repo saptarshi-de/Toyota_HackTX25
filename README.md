@@ -25,18 +25,16 @@ A comprehensive web application that helps users find personalized financing and
 ### 1. Install Dependencies
 
 ```bash
-cd backend
 pip install -r requirements.txt
 ```
 
 ### 2. Run the Application
 
 ```bash
-cd backend
-python3 app.py
+python3 run.py
 ```
 
-The application will be available at `http://localhost:5001`
+The application will be available at `http://localhost:5002`
 
 ### 3. Stripe Integration (Optional)
 
@@ -51,18 +49,24 @@ For payment processing, set up Stripe:
 
 ```
 Toyota_HackTX25/
-├── backend/
-│   ├── app.py                 # Flask application with API endpoints
-│   ├── requirements.txt       # Python dependencies
-│   └── templates/
-│       ├── home.html          # Vehicle browsing page
-│       ├── preferences.html   # User preferences form
-│       ├── survey.html        # Financial survey
-│       ├── financing.html     # Financing options display
-│       ├── compare.html       # Options comparison
-│       └── payment.html       # Payment processing
-└── frontend/
-    └── app.py                 # Placeholder
+├── src/                       # Source code directory
+│   ├── __init__.py           # Package initialization
+│   ├── app.py                # Flask application with API endpoints
+│   ├── templates/            # HTML templates
+│   │   ├── home.html         # Vehicle browsing page
+│   │   ├── preferences.html  # User preferences form
+│   │   ├── survey.html       # Financial survey
+│   │   ├── financing.html    # Financing options display
+│   │   ├── compare.html      # Options comparison
+│   │   └── payment.html      # Payment processing
+│   └── static/               # Static assets (CSS, JS, images)
+│       ├── css/              # Stylesheets
+│       └── js/               # JavaScript files
+├── config.py                 # Configuration settings
+├── run.py                    # Application entry point
+├── requirements.txt          # Python dependencies
+├── .gitignore               # Git ignore rules
+└── README.md                # Project documentation
 ```
 
 ## App Flow
@@ -122,7 +126,7 @@ This is a hackathon project. For questions or suggestions, please contact the de
 
 ## Demo
 
-Visit `http://localhost:5001` to see the application in action!
+Visit `http://localhost:5002` to see the application in action!
 
 **Key Features to Demo:**
 1. Browse Toyota vehicles by year and type
