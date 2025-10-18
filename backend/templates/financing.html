@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financing Options - Toyota Financial Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item .label {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .options-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .options-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        }
+
+        .option-card.selected {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .bank-name {
+            font-weight: 600;
+            color: #1e3a8a;
+            font-size: 1.1rem;
+        }
+
+        .option-type {
+            background: #e2e8f0;
+            color: #64748b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .option-type.financing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .option-type.lease {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .option-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .monthly-payment {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .option-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .total-cost {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .select-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-btn:hover {
+            background: #2563eb;
+        }
+
+        .select-btn.selected {
+            background: #059669;
+        }
+
+        .calculator-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .calculator-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calculator-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .calculate-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .calculate-btn:hover {
+            background: #2563eb;
+        }
+
+        .calculation-result {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .calculation-result .monthly-payment {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+        }
+
+        .calculation-result .details {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+
+            .calculator-form {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-balance-scale"></i> Financing Options</h1>
+            <p>Compare personalized financing and leasing options from multiple lenders</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="summary-card" id="summaryCard">
+            <!-- Summary will be populated by JavaScript -->
+        </div>
+
+        <div class="options-container">
+            <div class="options-section">
+                <h3><i class="fas fa-handshake"></i> Financing Options</h3>
+                <div id="financingOptions">
+                    <!-- Financing options will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="options-section">
+                <h3><i class="fas fa-calendar-alt"></i> Leasing Options</h3>
+                <div id="leasingOptions">
+                    <!-- Leasing options will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="calculator-section">
+            <h3><i class="fas fa-calculator"></i> Payment Calculator</h3>
+            <div class="calculator-form">
+                <div class="form-group">
+                    <label>Vehicle Price</label>
+                    <input type="number" id="vehiclePrice" placeholder="30000" min="15000" max="100000">
+                </div>
+                <div class="form-group">
+                    <label>Down Payment</label>
+                    <input type="number" id="downPayment" placeholder="5000" min="0" max="50000">
+                </div>
+                <div class="form-group">
+                    <label>Interest Rate (%)</label>
+                    <input type="number" id="interestRate" placeholder="5.5" min="0" max="20" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Loan Term (months)</label>
+                    <select id="loanTerm">
+                        <option value="36">36 months</option>
+                        <option value="48">48 months</option>
+                        <option value="60" selected>60 months</option>
+                        <option value="72">72 months</option>
+                        <option value="84">84 months</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="calculate-btn" onclick="calculatePayment()">
+                        <i class="fas fa-calculator"></i>
+                        Calculate Payment
+                    </button>
+                </div>
+            </div>
+            <div class="calculation-result" id="calculationResult" style="display: none;">
+                <div class="monthly-payment" id="calculatedPayment">$0</div>
+                <div class="details" id="calculationDetails">Total interest and loan details</div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a href="/survey" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Survey
+            </a>
+            <button class="btn btn-primary" onclick="compareOptions()">
+                <i class="fas fa-balance-scale"></i>
+                Compare Options
+            </button>
+            <button class="btn btn-success" onclick="proceedToPayment()" id="proceedBtn" style="display: none;">
+                <i class="fas fa-credit-card"></i>
+                Proceed to Payment
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedOption = null;
+        let financingOptions = [];
+        let leasingOptions = [];
+
+        // Load data from session storage
+        const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
+        const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
+        const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSummary();
+            loadFinancingOptions();
+        });
+
+        function loadSummary() {
+            const summaryCard = document.getElementById('summaryCard');
+            summaryCard.innerHTML = `
+                <div class="summary-item">
+                    <div class="label">Selected Vehicle</div>
+                    <div class="value">${selectedVehicle.year || 'N/A'} ${selectedVehicle.model || 'N/A'}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Vehicle Price</div>
+                    <div class="value">$${(selectedVehicle.price || 0).toLocaleString()}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Annual Income</div>
+                    <div class="value">$${(survey.income || 0).toLocaleString()}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Credit Score</div>
+                    <div class="value">${survey.creditScore || 'N/A'}</div>
+                </div>
+            `;
+        }
+
+        async function loadFinancingOptions() {
+            try {
+                const response = await fetch('/api/financing-options', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        credit_score: survey.creditScore || 700,
+                        income: survey.income || 50000,
+                        vehicle_price: selectedVehicle.price || 30000
+                    })
+                });
+
+                const options = await response.json();
+                
+                // Separate financing and leasing options
+                financingOptions = options.filter(option => option.type === 'financing');
+                leasingOptions = options.filter(option => option.type === 'lease');
+
+                displayOptions();
+            } catch (error) {
+                console.error('Error loading financing options:', error);
+            }
+        }
+
+        function displayOptions() {
+            displayFinancingOptions();
+            displayLeasingOptions();
+        }
+
+        function displayFinancingOptions() {
+            const container = document.getElementById('financingOptions');
+            container.innerHTML = '';
+
+            financingOptions.forEach((option, index) => {
+                const optionCard = createOptionCard(option, 'financing', index);
+                container.appendChild(optionCard);
+            });
+        }
+
+        function displayLeasingOptions() {
+            const container = document.getElementById('leasingOptions');
+            container.innerHTML = '';
+
+            leasingOptions.forEach((option, index) => {
+                const optionCard = createOptionCard(option, 'lease', index);
+                container.appendChild(optionCard);
+            });
+        }
+
+        function createOptionCard(option, type, index) {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.dataset.type = type;
+            card.dataset.index = index;
+
+            card.innerHTML = `
+                <div class="option-header">
+                    <div class="bank-name">${option.bank}</div>
+                    <div class="option-type ${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                </div>
+                <div class="option-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Interest Rate</div>
+                        <div class="detail-value">${option.rate}%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Term</div>
+                        <div class="detail-value">${option.term} months</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Monthly Payment</div>
+                        <div class="detail-value monthly-payment">$${option.monthly_payment.toLocaleString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Total Cost</div>
+                        <div class="detail-value">$${option.total_cost.toLocaleString()}</div>
+                    </div>
+                </div>
+                <div class="option-footer">
+                    <div class="total-cost">Total: $${option.total_cost.toLocaleString()}</div>
+                    <button class="select-btn" onclick="selectOption('${type}', ${index})">Select</button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function selectOption(type, index) {
+            // Remove previous selection
+            document.querySelectorAll('.option-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            const selectedCard = document.querySelector(`[data-type="${type}"][data-index="${index}"]`);
+            selectedCard.classList.add('selected');
+
+            // Store selected option
+            selectedOption = type === 'financing' ? financingOptions[index] : leasingOptions[index];
+            selectedOption.type = type;
+
+            // Show proceed button
+            document.getElementById('proceedBtn').style.display = 'inline-flex';
+        }
+
+        async function calculatePayment() {
+            const vehiclePrice = parseFloat(document.getElementById('vehiclePrice').value) || selectedVehicle.price || 30000;
+            const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) || 5.5;
+            const loanTerm = parseInt(document.getElementById('loanTerm').value) || 60;
+
+            try {
+                const response = await fetch('/api/calculate-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        vehicle_price: vehiclePrice,
+                        down_payment: downPayment,
+                        interest_rate: interestRate,
+                        loan_term: loanTerm
+                    })
+                });
+
+                const result = await response.json();
+                displayCalculationResult(result);
+            } catch (error) {
+                console.error('Error calculating payment:', error);
+            }
+        }
+
+        function displayCalculationResult(result) {
+            document.getElementById('calculatedPayment').textContent = `$${result.monthly_payment.toLocaleString()}`;
+            document.getElementById('calculationDetails').textContent = 
+                `Total Interest: $${result.total_interest.toLocaleString()} | Total Payment: $${result.total_payment.toLocaleString()}`;
+            document.getElementById('calculationResult').style.display = 'block';
+        }
+
+        function compareOptions() {
+            // Store selected option for comparison
+            if (selectedOption) {
+                sessionStorage.setItem('selectedOption', JSON.stringify(selectedOption));
+            }
+            window.location.href = '/compare';
+        }
+
+        function proceedToPayment() {
+            if (selectedOption) {
+                sessionStorage.setItem('selectedOption', JSON.stringify(selectedOption));
+                window.location.href = '/payment';
+            } else {
+                alert('Please select a financing option first.');
+            }
+        }
+
+        // Initialize calculator with selected vehicle data
+        if (selectedVehicle.price) {
+            document.getElementById('vehiclePrice').value = selectedVehicle.price;
+        }
+        if (survey.downPayment) {
+            document.getElementById('downPayment').value = survey.downPayment;
+        }
+        if (survey.loanTerm) {
+            document.getElementById('loanTerm').value = survey.loanTerm;
+        }
+    </script>
+</body>
+</html>

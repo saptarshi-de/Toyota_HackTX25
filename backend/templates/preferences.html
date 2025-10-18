@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Preferences - Toyota Financial Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .budget-range {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .budget-range input {
+            flex: 1;
+        }
+
+        .budget-display {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .budget-display .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .selected-vehicle {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .selected-vehicle h4 {
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+        }
+
+        .selected-vehicle .price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            height: 100%;
+            width: 33%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+
+            .budget-range {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cog"></i> Vehicle Preferences</h1>
+            <p>Tell us about your lifestyle and preferences to get personalized recommendations</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="selected-vehicle" id="selectedVehicle" style="display: none;">
+            <h4><i class="fas fa-car"></i> Selected Vehicle</h4>
+            <div id="vehicleInfo"></div>
+        </div>
+
+        <div class="form-container">
+            <form id="preferencesForm">
+                <div class="form-section">
+                    <h3><i class="fas fa-dollar-sign"></i> Budget Range</h3>
+                    <div class="budget-range">
+                        <div class="form-group">
+                            <label>Minimum Budget</label>
+                            <input type="number" id="minBudget" placeholder="25000" min="15000" max="100000">
+                        </div>
+                        <div class="form-group">
+                            <label>Maximum Budget</label>
+                            <input type="number" id="maxBudget" placeholder="50000" min="20000" max="100000">
+                        </div>
+                    </div>
+                    <div class="budget-display">
+                        <div>Your Budget Range</div>
+                        <div class="amount" id="budgetDisplay">$25,000 - $50,000</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-car-side"></i> Vehicle Type Preferences</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sedan" name="vehicleType" value="sedan">
+                            <label for="sedan">Sedan (Camry, Corolla, Prius)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="suv" name="vehicleType" value="suv">
+                            <label for="suv">SUV (RAV4, Highlander, 4Runner)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="truck" name="vehicleType" value="truck">
+                            <label for="truck">Truck (Tacoma)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-users"></i> Lifestyle & Usage</h3>
+                    <div class="form-group">
+                        <label>Primary Use</label>
+                        <select id="primaryUse">
+                            <option value="">Select primary use</option>
+                            <option value="commuting">Daily Commuting</option>
+                            <option value="family">Family Transportation</option>
+                            <option value="business">Business Use</option>
+                            <option value="recreation">Recreation/Leisure</option>
+                            <option value="mixed">Mixed Use</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Annual Mileage</label>
+                        <select id="annualMileage">
+                            <option value="">Select annual mileage</option>
+                            <option value="low">Under 10,000 miles</option>
+                            <option value="medium">10,000 - 20,000 miles</option>
+                            <option value="high">Over 20,000 miles</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-star"></i> Must-Have Features</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="safety" name="features" value="safety">
+                            <label for="safety">Advanced Safety Features</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="fuel" name="features" value="fuel">
+                            <label for="fuel">Excellent Fuel Economy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tech" name="features" value="tech">
+                            <label for="tech">Latest Technology</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="space" name="features" value="space">
+                            <label for="space">Spacious Interior</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="towing" name="features" value="towing">
+                            <label for="towing">Towing Capability</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="offroad" name="features" value="offroad">
+                            <label for="offroad">Off-Road Capability</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-palette"></i> Color Preferences</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="white" name="colors" value="white">
+                            <label for="white">White</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="black" name="colors" value="black">
+                            <label for="black">Black</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="silver" name="colors" value="silver">
+                            <label for="silver">Silver</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="blue" name="colors" value="blue">
+                            <label for="blue">Blue</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="red" name="colors" value="red">
+                            <label for="red">Red</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gray" name="colors" value="gray">
+                            <label for="gray">Gray</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-comment"></i> Additional Notes</h3>
+                    <div class="form-group">
+                        <textarea id="additionalNotes" rows="4" placeholder="Any specific requirements or preferences not covered above..."></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Vehicles
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Continue to Survey
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Load selected vehicle from session storage
+        const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || 'null');
+        if (selectedVehicle) {
+            document.getElementById('selectedVehicle').style.display = 'block';
+            document.getElementById('vehicleInfo').innerHTML = `
+                <div>${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim}</div>
+                <div class="price">$${selectedVehicle.price.toLocaleString()}</div>
+            `;
+        }
+
+        // Budget range display
+        function updateBudgetDisplay() {
+            const min = document.getElementById('minBudget').value || 25000;
+            const max = document.getElementById('maxBudget').value || 50000;
+            document.getElementById('budgetDisplay').textContent = `$${parseInt(min).toLocaleString()} - $${parseInt(max).toLocaleString()}`;
+        }
+
+        document.getElementById('minBudget').addEventListener('input', updateBudgetDisplay);
+        document.getElementById('maxBudget').addEventListener('input', updateBudgetDisplay);
+
+        // Form submission
+        document.getElementById('preferencesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                budget: {
+                    min: parseInt(document.getElementById('minBudget').value) || 25000,
+                    max: parseInt(document.getElementById('maxBudget').value) || 50000
+                },
+                vehicleTypes: Array.from(document.querySelectorAll('input[name="vehicleType"]:checked')).map(cb => cb.value),
+                primaryUse: document.getElementById('primaryUse').value,
+                annualMileage: document.getElementById('annualMileage').value,
+                features: Array.from(document.querySelectorAll('input[name="features"]:checked')).map(cb => cb.value),
+                colors: Array.from(document.querySelectorAll('input[name="colors"]:checked')).map(cb => cb.value),
+                additionalNotes: document.getElementById('additionalNotes').value,
+                selectedVehicle: selectedVehicle
+            };
+
+            // Store in session storage
+            sessionStorage.setItem('preferences', JSON.stringify(formData));
+            
+            // Redirect to survey
+            window.location.href = '/survey';
+        });
+
+        // Initialize budget display
+        updateBudgetDisplay();
+    </script>
+</body>
+</html>
