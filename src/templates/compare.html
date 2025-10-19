@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare Options - Toyota Financial Services</title>
+    <!-- Updated with three-column dropdown design -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -115,115 +116,261 @@
             opacity: 0.9;
         }
 
+        /* Plan Selection Section */
+        .plan-selection {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .selection-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .selection-header h3 {
+            color: #1e3a8a;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .selection-header p {
+            color: #64748b;
+        }
+
+        .plan-dropdowns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .plan-dropdown {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .plan-dropdown label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 1rem;
+        }
+
+        .plan-dropdown select {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .plan-dropdown select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .plan-dropdown select option {
+            padding: 8px;
+        }
+
+        /* Comparison Table */
         .comparison-table {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
             overflow: hidden;
             margin-bottom: 2rem;
         }
 
         .table-header {
-            background: #f8fafc;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 2rem;
+            text-align: center;
             border-bottom: 2px solid #e5e7eb;
         }
 
         .table-header h3 {
             color: #1e3a8a;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
 
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        th {
-            background: #f8fafc;
-            font-weight: 600;
-            color: #1e3a8a;
-            position: sticky;
-            top: 0;
-        }
-
-        .bank-name {
-            font-weight: 600;
-            color: #1e3a8a;
-        }
-
-        .option-type {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .option-type.financing {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .option-type.lease {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .rate {
-            font-weight: 600;
-            color: #059669;
-        }
-
-        .monthly-payment {
-            font-weight: 700;
-            color: #059669;
-            font-size: 1.1rem;
-        }
-
-        .total-cost {
+        .table-header p {
             color: #64748b;
         }
 
-        .best-value {
-            background: #f0f9ff;
-            border: 2px solid #0ea5e9;
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            min-height: 400px;
         }
 
-        .best-value .bank-name {
-            color: #0c4a6e;
+        .comparison-column {
+            padding: 2rem;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
 
-        .select-btn {
-            background: #3b82f6;
+        .comparison-column:last-child {
+            border-right: none;
+        }
+
+        .comparison-column.empty {
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        .comparison-column.empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .plan-header {
+            margin-bottom: 2rem;
+        }
+
+        .bank-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
             color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
+            font-size: 2rem;
+        }
+
+        .bank-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-type {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-type.financing {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+
+        .plan-type.lease {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+        }
+
+        .plan-details {
+            width: 100%;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #64748b;
             font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .detail-value.highlight {
+            color: #059669;
+            font-size: 1.3rem;
+        }
+
+        .monthly-payment-display {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .monthly-payment-display .label {
+            font-size: 0.8rem;
+            color: #0c4a6e;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .monthly-payment-display .value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+        }
+
+        .monthly-payment-display .subtitle {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .select-plan-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
         }
 
-        .select-btn:hover {
-            background: #2563eb;
+        .select-plan-btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
         }
 
-        .select-btn.selected {
-            background: #059669;
+        .select-plan-btn.selected {
+            background: linear-gradient(135deg, #059669, #047857);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+        }
+
+        .select-plan-btn.selected:hover {
+            background: linear-gradient(135deg, #047857, #065f46);
         }
 
         .recommendation {
@@ -366,27 +513,42 @@
             <!-- Recommendation will be populated by JavaScript -->
         </div>
 
+        <!-- Plan Selection Section -->
+        <div class="plan-selection">
+            <div class="selection-header">
+                <h3><i class="fas fa-list"></i> Select Plans to Compare</h3>
+                <p>Choose up to 3 financing plans to compare side by side</p>
+            </div>
+            <div class="plan-dropdowns">
+                <div class="plan-dropdown">
+                    <label for="plan1">Plan 1</label>
+                    <select id="plan1" onchange="updateComparison()">
+                        <option value="">Select a plan...</option>
+                    </select>
+                </div>
+                <div class="plan-dropdown">
+                    <label for="plan2">Plan 2</label>
+                    <select id="plan2" onchange="updateComparison()">
+                        <option value="">Select a plan...</option>
+                    </select>
+                </div>
+                <div class="plan-dropdown">
+                    <label for="plan3">Plan 3</label>
+                    <select id="plan3" onchange="updateComparison()">
+                        <option value="">Select a plan...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
         <div class="comparison-table">
             <div class="table-header">
-                <h3><i class="fas fa-table"></i> Detailed Comparison</h3>
+                <h3><i class="fas fa-balance-scale"></i> Side-by-Side Comparison</h3>
+                <p>Compare the selected plans with detailed information</p>
             </div>
-            <div class="table-container">
-                <table id="comparisonTable">
-                    <thead>
-                        <tr>
-                            <th>Lender</th>
-                            <th>Type</th>
-                            <th>Interest Rate</th>
-                            <th>Term</th>
-                            <th>Monthly Payment</th>
-                            <th>Total Cost</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparisonBody">
-                        <!-- Rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
+            <div class="comparison-grid" id="comparisonGrid">
+                <!-- Comparison columns will be populated by JavaScript -->
             </div>
         </div>
 
@@ -405,6 +567,7 @@
     <script>
         let allOptions = [];
         let selectedOption = null;
+        let selectedPlans = [null, null, null]; // Track selected plans for each column
 
         // Load data from session storage
         const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
@@ -431,95 +594,180 @@
                 });
 
                 allOptions = await response.json();
-                displayComparison();
+                populateDropdowns();
                 generateRecommendation();
+                updateComparison();
             } catch (error) {
                 console.error('Error loading options:', error);
             }
         }
 
-        function displayComparison() {
-            const tbody = document.getElementById('comparisonBody');
-            tbody.innerHTML = '';
+        function populateDropdowns() {
+            const plan1Select = document.getElementById('plan1');
+            const plan2Select = document.getElementById('plan2');
+            const plan3Select = document.getElementById('plan3');
 
-            // Sort options by monthly payment
-            const sortedOptions = [...allOptions].sort((a, b) => a.monthly_payment - b.monthly_payment);
+            // Clear existing options
+            [plan1Select, plan2Select, plan3Select].forEach(select => {
+                select.innerHTML = '<option value="">Select a plan...</option>';
+            });
 
-            sortedOptions.forEach((option, index) => {
-                const row = document.createElement('tr');
-                
-                // Mark best value (lowest monthly payment)
-                if (index === 0) {
-                    row.classList.add('best-value');
-                }
+            // Add options to all dropdowns
+            allOptions.forEach((option, index) => {
+                const optionText = `${option.bank} - ${option.type.toUpperCase()} - $${option.monthly_payment.toLocaleString()}/month`;
+                const optionValue = index.toString();
 
-                row.innerHTML = `
-                    <td class="bank-name">${option.bank}</td>
-                    <td>
-                        <span class="option-type ${option.type}">
-                            ${option.type.charAt(0).toUpperCase() + option.type.slice(1)}
-                        </span>
-                    </td>
-                    <td class="rate">${option.rate}%</td>
-                    <td>${option.term} months</td>
-                    <td class="monthly-payment">$${option.monthly_payment.toLocaleString()}</td>
-                    <td class="total-cost">$${option.total_cost.toLocaleString()}</td>
-                    <td>
-                        <button class="select-btn" onclick="selectOption(${index})">
-                            Select
-                        </button>
-                    </td>
-                `;
-
-                tbody.appendChild(row);
+                [plan1Select, plan2Select, plan3Select].forEach(select => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = optionValue;
+                    optionElement.textContent = optionText;
+                    select.appendChild(optionElement);
+                });
             });
         }
 
+        function updateComparison() {
+            const plan1Value = document.getElementById('plan1').value;
+            const plan2Value = document.getElementById('plan2').value;
+            const plan3Value = document.getElementById('plan3').value;
+
+            // Update selected plans array
+            selectedPlans[0] = plan1Value ? allOptions[parseInt(plan1Value)] : null;
+            selectedPlans[1] = plan2Value ? allOptions[parseInt(plan2Value)] : null;
+            selectedPlans[2] = plan3Value ? allOptions[parseInt(plan3Value)] : null;
+
+            // Update comparison display
+            displayComparison();
+        }
+
+        function displayComparison() {
+            const comparisonGrid = document.getElementById('comparisonGrid');
+            comparisonGrid.innerHTML = '';
+
+            for (let i = 0; i < 3; i++) {
+                const column = document.createElement('div');
+                column.className = 'comparison-column';
+
+                if (selectedPlans[i]) {
+                    column.innerHTML = createPlanColumn(selectedPlans[i], i);
+                } else {
+                    column.classList.add('empty');
+                    column.innerHTML = `
+                        <i class="fas fa-plus-circle"></i>
+                        <h4>Select Plan ${i + 1}</h4>
+                        <p>Choose a plan from the dropdown above to see details</p>
+                    `;
+                }
+
+                comparisonGrid.appendChild(column);
+            }
+        }
+
+        function createPlanColumn(option, columnIndex) {
+            const bankIcon = getBankIcon(option.bank);
+            const avgRate = ((option.rate_min + option.rate_max) / 2).toFixed(2);
+            const vehiclePrice = selectedVehicle.price || 30000;
+
+            return `
+                <div class="plan-header">
+                    <div class="bank-logo">
+                        <i class="${bankIcon}"></i>
+                    </div>
+                    <div class="bank-name">${option.bank}</div>
+                    <div class="plan-type ${option.type}">${option.type.toUpperCase()}</div>
+                </div>
+
+                <div class="plan-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Interest Rate</span>
+                        <span class="detail-value">${avgRate}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Rate Range</span>
+                        <span class="detail-value">${option.rate_min}% - ${option.rate_max}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Loan Term</span>
+                        <span class="detail-value">${option.term} months</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Vehicle Price</span>
+                        <span class="detail-value">$${vehiclePrice.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Cost</span>
+                        <span class="detail-value highlight">$${option.total_cost.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <div class="monthly-payment-display">
+                    <div class="label">Monthly Payment</div>
+                    <div class="value">$${option.monthly_payment.toLocaleString()}</div>
+                    <div class="subtitle">Based on minimum rate</div>
+                </div>
+
+                <button class="select-plan-btn" onclick="selectPlan(${columnIndex})">
+                    <i class="fas fa-check"></i>
+                    Select This Plan
+                </button>
+            `;
+        }
+
+        function getBankIcon(bankName) {
+            const iconMap = {
+                'Toyota Financial Services': 'fas fa-car',
+                'Chase Auto': 'fas fa-university',
+                'Bank of America': 'fas fa-building',
+                'Wells Fargo Auto': 'fas fa-landmark',
+                'Capital One Auto': 'fas fa-credit-card'
+            };
+            return iconMap[bankName] || 'fas fa-university';
+        }
+
         function generateRecommendation() {
-            const recommendation = document.getElementById('recommendation');
+            const recommendationDiv = document.getElementById('recommendation');
             
             if (allOptions.length === 0) {
-                recommendation.innerHTML = `
+                recommendationDiv.innerHTML = `
                     <h4><i class="fas fa-info-circle"></i> No Options Available</h4>
                     <p>We couldn't find any financing options that match your criteria. Please try adjusting your preferences or contact us for assistance.</p>
                 `;
                 return;
             }
-
+            
             // Find the best option (lowest monthly payment)
             const bestOption = allOptions.reduce((best, current) => 
                 current.monthly_payment < best.monthly_payment ? current : best
             );
-
+            
             const savings = allOptions.length > 1 ? 
                 Math.max(...allOptions.map(o => o.monthly_payment)) - bestOption.monthly_payment : 0;
-
-            recommendation.innerHTML = `
+            
+            recommendationDiv.innerHTML = `
                 <h4><i class="fas fa-star"></i> Our Recommendation</h4>
                 <p>
                     Based on your financial profile, we recommend <strong>${bestOption.bank}</strong> 
-                    with a ${bestOption.type} option at ${bestOption.rate}% interest. 
+                    with a ${bestOption.type} option at ${((bestOption.rate_min + bestOption.rate_max) / 2).toFixed(2)}% interest. 
                     This gives you the lowest monthly payment of <strong>$${bestOption.monthly_payment.toLocaleString()}</strong>
                     ${savings > 0 ? `, saving you $${savings.toFixed(0)} per month compared to other options.` : '.'}
                 </p>
             `;
         }
 
-        function selectOption(index) {
+        function selectPlan(columnIndex) {
             // Remove previous selection
-            document.querySelectorAll('.select-btn.selected').forEach(btn => {
+            document.querySelectorAll('.select-plan-btn').forEach(btn => {
                 btn.classList.remove('selected');
-                btn.textContent = 'Select';
+                btn.innerHTML = '<i class="fas fa-check"></i> Select This Plan';
             });
-
+            
             // Add selection to clicked button
-            const selectedBtn = document.querySelectorAll('.select-btn')[index];
-            selectedBtn.classList.add('selected');
-            selectedBtn.textContent = 'Selected';
-
+            event.target.classList.add('selected');
+            event.target.innerHTML = '<i class="fas fa-check"></i> Selected';
+            
             // Store selected option
-            selectedOption = allOptions[index];
-
+            selectedOption = selectedPlans[columnIndex];
+            
             // Show proceed button
             document.getElementById('proceedBtn').style.display = 'inline-flex';
         }

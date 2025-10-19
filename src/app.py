@@ -100,6 +100,7 @@ app = Flask(__name__,
             template_folder='templates',
             static_folder='static')
 app.secret_key = 'toyota-financial-secret-key-2024'
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 CORS(app)
 
 # --- Routes ---
