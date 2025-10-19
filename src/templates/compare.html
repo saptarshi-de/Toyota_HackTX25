@@ -93,7 +93,7 @@
 
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -166,6 +166,11 @@
             background: white;
             transition: all 0.3s ease;
             cursor: pointer;
+            width: 100%; 
+            min-width: 0; /* Prevents overflow when text is too long */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .plan-dropdown select:focus {
@@ -463,11 +468,17 @@
             .container {
                 padding: 10px;
             }
-
+            .plan-dropdowns {
+            grid-template-columns: 1fr; 
+            gap: 1.5rem;
+            }
             .btn-container {
                 flex-direction: column;
             }
-
+            .comparison-grid {
+            grid-template-columns: repeat(3, minmax(250px, 1fr)); /* Min column width */
+            min-width: 750px; /* This ensures all 3 columns fit without being too squished */
+            }
             .table-container {
                 font-size: 0.9rem;
             }
