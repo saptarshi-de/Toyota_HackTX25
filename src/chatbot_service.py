@@ -39,22 +39,16 @@ class FinancialAdvisorChatbot:
         self.question_templates = {
             'income': {
                 'question': "What's your annual household income? This helps us determine your budget range.",
-                'type': 'range',
+                'type': 'text',
                 'options': {
-                    'min': 25000,
-                    'max': 200000,
-                    'step': 5000,
-                    'default': 75000
+                    'placeholder': 'Enter your annual income (e.g., 75000)'
                 }
             },
             'credit_score': {
                 'question': "What's your approximate credit score? This affects your interest rates significantly.",
-                'type': 'range',
+                'type': 'text',
                 'options': {
-                    'min': 300,
-                    'max': 850,
-                    'step': 10,
-                    'default': 700
+                    'placeholder': 'Enter your credit score (e.g., 720)'
                 }
             },
             'housing_status': {
@@ -81,12 +75,9 @@ class FinancialAdvisorChatbot:
             },
             'down_payment': {
                 'question': "How much can you put down as a down payment?",
-                'type': 'number',
+                'type': 'text',
                 'options': {
-                    'min': 0,
-                    'max': 50000,
-                    'step': 500,
-                    'default': 5000
+                    'placeholder': 'Enter down payment amount (e.g., 5000)'
                 }
             },
             'loan_preference': {

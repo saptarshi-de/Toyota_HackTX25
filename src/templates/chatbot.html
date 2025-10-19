@@ -217,6 +217,17 @@
             line-height: 1.5;
         }
 
+        .text-hint {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 0.95rem;
+            color: #0369a1;
+            font-style: italic;
+        }
+
         .question-options {
             display: flex;
             flex-direction: column;
@@ -756,6 +767,12 @@
                                    placeholder="Enter amount">
                         </div>
                     `;
+                } else if (questionData.question_type === 'text') {
+                    // For text type questions, just show the question without additional input fields
+                    // User will type directly in the main chatbot input box
+                    if (questionData.options && questionData.options.placeholder) {
+                        html += `<div class="text-hint">💡 ${questionData.options.placeholder}</div>`;
+                    }
                 }
                 
                 return html;
