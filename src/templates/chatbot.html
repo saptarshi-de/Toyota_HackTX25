@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Advisor Chatbot - Toyota Financial Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chatbot-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .chatbot-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chatbot-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .progress-container {
+            margin-top: 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 0.5rem;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .chatbot-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .message.bot {
+            flex-direction: row;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #10b981;
+            color: white;
+        }
+
+        .message-content {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 70%;
+            position: relative;
+        }
+
+        .message.bot .message-content {
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user .message-content {
+            border-bottom-right-radius: 4px;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-button {
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .option-button:hover {
+            background: #e2e8f0;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .option-button.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .range-input-container {
+            margin-top: 1rem;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 1rem 0;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+        }
+
+        .range-display {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .range-display .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0c4a6e;
+        }
+
+        .number-input-container {
+            margin-top: 1rem;
+        }
+
+        .number-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+        }
+
+        .number-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .chatbot-input {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .send-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .send-button:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .recommendations {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .recommendations h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .recommendation-section {
+            margin-bottom: 2rem;
+        }
+
+        .recommendation-section h4 {
+            color: #374151;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips-list li {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .action-button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .action-button.secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .action-button.secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .loading .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 1rem;
+            color: #dc2626;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-container {
+                height: 100vh;
+            }
+
+            .chat-messages {
+                padding: 1rem;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .chatbot-input {
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <h1><i class="fas fa-robot"></i> Financial Advisor</h1>
+            <p>Get personalized financing recommendations for your Toyota vehicle</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Step 1 of 7</div>
+            </div>
+        </div>
+
+        <div class="chatbot-content">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <div class="chatbot-input" id="chatbotInput">
+                <input type="text" class="input-field" id="messageInput" placeholder="Type your response..." disabled>
+                <button class="send-button" id="sendButton" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ChatbotInterface {
+            constructor() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.progressFill = document.getElementById('progressFill');
+                this.progressText = document.getElementById('progressText');
+                
+                this.currentQuestion = null;
+                this.isWaitingForResponse = false;
+                
+                this.initializeEventListeners();
+                this.startConversation();
+            }
+
+            initializeEventListeners() {
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !this.isWaitingForResponse) {
+                        this.sendMessage();
+                    }
+                });
+            }
+
+            async startConversation() {
+                try {
+                    this.showLoading('Starting conversation...');
+                    const response = await fetch('/api/chatbot/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        this.showError(data.error);
+                        return;
+                    }
+
+                    this.hideLoading();
+                    this.displayQuestion(data);
+                } catch (error) {
+                    this.showError('Failed to start conversation. Please try again.');
+                }
+            }
+
+            async sendMessage() {
+                if (this.isWaitingForResponse) return;
+
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+
+                // Display user message
+                this.addMessage(message, 'user');
+                this.messageInput.value = '';
+                this.setInputState(false);
+
+                try {
+                    this.showLoading('Processing your response...');
+                    this.isWaitingForResponse = true;
+
+                    const response = await fetch('/api/chatbot/respond', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ response: message })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        this.showError(data.error);
+                        return;
+                    }
+
+                    this.hideLoading();
+                    
+                    if (data.type === 'recommendations') {
+                        this.displayRecommendations(data);
+                    } else if (data.type === 'question') {
+                        this.displayQuestion(data);
+                    }
+                } catch (error) {
+                    this.showError('Failed to process response. Please try again.');
+                } finally {
+                    this.isWaitingForResponse = false;
+                }
+            }
+
+            displayQuestion(questionData) {
+                this.currentQuestion = questionData;
+                this.updateProgress(questionData.step, questionData.total_steps);
+                
+                const questionHtml = this.createQuestionHtml(questionData);
+                this.addMessage(questionHtml, 'bot', true);
+                
+                this.setInputState(true);
+            }
+
+            createQuestionHtml(questionData) {
+                let html = `<div class="question-text">${questionData.question}</div>`;
+                
+                if (questionData.question_type === 'select') {
+                    html += '<div class="question-options">';
+                    questionData.options.forEach(option => {
+                        html += `
+                            <button class="option-button" onclick="chatbot.selectOption('${option.value}')">
+                                ${option.label}
+                            </button>
+                        `;
+                    });
+                    html += '</div>';
+                } else if (questionData.question_type === 'range') {
+                    const options = questionData.options;
+                    html += `
+                        <div class="range-input-container">
+                            <input type="range" 
+                                   class="range-slider" 
+                                   id="rangeSlider"
+                                   min="${options.min}" 
+                                   max="${options.max}" 
+                                   step="${options.step}" 
+                                   value="${options.default}"
+                                   oninput="chatbot.updateRangeDisplay(this.value)">
+                            <div class="range-display">
+                                <div class="value" id="rangeValue">$${options.default.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                } else if (questionData.question_type === 'number') {
+                    const options = questionData.options;
+                    html += `
+                        <div class="number-input-container">
+                            <input type="number" 
+                                   class="number-input" 
+                                   id="numberInput"
+                                   min="${options.min}" 
+                                   max="${options.max}" 
+                                   step="${options.step}" 
+                                   placeholder="Enter amount">
+                        </div>
+                    `;
+                }
+                
+                return html;
+            }
+
+            selectOption(value) {
+                this.messageInput.value = value;
+                this.sendMessage();
+            }
+
+            updateRangeDisplay(value) {
+                const rangeValue = document.getElementById('rangeValue');
+                if (rangeValue) {
+                    rangeValue.textContent = `$${parseInt(value).toLocaleString()}`;
+                }
+            }
+
+            displayRecommendations(data) {
+                const recommendations = data.recommendations;
+                const userData = data.user_data;
+                
+                let html = `
+                    <div class="recommendations">
+                        <h3><i class="fas fa-lightbulb"></i> Your Personalized Recommendations</h3>
+                        
+                        <div class="recommendation-section">
+                            <h4><i class="fas fa-star"></i> Main Recommendation</h4>
+                            <p><strong>${recommendations.recommendation}</strong></p>
+                            <p>${recommendations.reasoning}</p>
+                        </div>
+                        
+                        <div class="recommendation-section">
+                            <h4><i class="fas fa-tips"></i> Financial Tips</h4>
+                            <ul class="tips-list">
+                                ${recommendations.tips.map(tip => `<li>${tip}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="recommendation-section">
+                            <h4><i class="fas fa-chart-line"></i> Financial Analysis</h4>
+                            <p><strong>Debt-to-Income Ratio:</strong> ${recommendations.financial_analysis?.debt_to_income_ratio || 'Analysis pending'}</p>
+                            <p><strong>Affordable Monthly Payment:</strong> ${recommendations.financial_analysis?.affordable_monthly_payment || 'Calculation pending'}</p>
+                            <p><strong>Credit Tier:</strong> ${recommendations.financial_analysis?.credit_tier || 'Assessment pending'}</p>
+                            <p><strong>Risk Level:</strong> ${recommendations.financial_analysis?.risk_level || 'Evaluation pending'}</p>
+                        </div>
+                        
+                        <div class="recommendation-section">
+                            <h4><i class="fas fa-cog"></i> Suggested Terms</h4>
+                            <p><strong>Loan Term:</strong> ${recommendations.suggested_terms.loan_term}</p>
+                            <p><strong>Down Payment:</strong> ${recommendations.suggested_terms.down_payment}</p>
+                            <p><strong>Financing Type:</strong> ${recommendations.suggested_terms.financing_type}</p>
+                            <p><strong>Interest Rate Range:</strong> ${recommendations.suggested_terms.interest_rate_range || 'Rate depends on credit score'}</p>
+                        </div>
+                        
+                        ${recommendations.concerns.length > 0 ? `
+                            <div class="recommendation-section">
+                                <h4><i class="fas fa-exclamation-triangle"></i> Areas to Address</h4>
+                                <ul class="tips-list">
+                                    ${recommendations.concerns.map(concern => `<li>${concern}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${recommendations.toyota_advantages ? `
+                            <div class="recommendation-section">
+                                <h4><i class="fas fa-star"></i> Toyota Financial Services Advantages</h4>
+                                <ul class="tips-list">
+                                    ${recommendations.toyota_advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="action-buttons">
+                            <a href="/financing" class="action-button">
+                                <i class="fas fa-calculator"></i> View Financing Options
+                            </a>
+                            <a href="/survey" class="action-button secondary">
+                                <i class="fas fa-clipboard-list"></i> Complete Survey Instead
+                            </a>
+                            <button class="action-button secondary" onclick="chatbot.resetConversation()">
+                                <i class="fas fa-redo"></i> Start Over
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(html, 'bot', true);
+                this.setInputState(false);
+            }
+
+            addMessage(content, sender, isHtml = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.innerHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                if (isHtml) {
+                    messageContent.innerHTML = content;
+                } else {
+                    messageContent.textContent = content;
+                }
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+                
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            showLoading(message) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'message bot';
+                loadingDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                
+                this.chatMessages.appendChild(loadingDiv);
+                this.scrollToBottom();
+            }
+
+            hideLoading() {
+                const loadingMessages = this.chatMessages.querySelectorAll('.loading');
+                loadingMessages.forEach(msg => {
+                    const messageDiv = msg.closest('.message');
+                    if (messageDiv) {
+                        messageDiv.remove();
+                    }
+                });
+            }
+
+            showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                
+                this.chatMessages.appendChild(errorDiv);
+                this.scrollToBottom();
+            }
+
+            updateProgress(current, total) {
+                const percentage = (current / total) * 100;
+                this.progressFill.style.width = `${percentage}%`;
+                this.progressText.textContent = `Step ${current} of ${total}`;
+            }
+
+            setInputState(enabled) {
+                this.messageInput.disabled = !enabled;
+                this.sendButton.disabled = !enabled;
+                
+                if (enabled) {
+                    this.messageInput.focus();
+                }
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            async resetConversation() {
+                try {
+                    await fetch('/api/chatbot/reset', { method: 'POST' });
+                    this.chatMessages.innerHTML = '';
+                    this.startConversation();
+                } catch (error) {
+                    this.showError('Failed to reset conversation. Please refresh the page.');
+                }
+            }
+        }
+
+        // Initialize chatbot when page loads
+        let chatbot;
+        document.addEventListener('DOMContentLoaded', () => {
+            chatbot = new ChatbotInterface();
+        });
+    </script>
+</body>
+</html>

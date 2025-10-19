@@ -3,6 +3,11 @@ from flask_cors import CORS
 import os
 import json
 import csv
+from dotenv import load_dotenv
+from .chatbot_service import FinancialAdvisorChatbot
+
+# Load environment variables from .env file
+load_dotenv()
 
 # --- File Paths ---
 VEHICLES_CSV_FILE_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'toyotacars.csv')
@@ -82,6 +87,13 @@ def load_financing_data(file_path):
 TOYOTA_VEHICLES = load_vehicles_from_csv(VEHICLES_CSV_FILE_PATH)
 FINANCING_LENDERS = load_financing_data(FINANCE_CSV_FILE_PATH)
 
+# Initialize chatbot service
+try:
+    CHATBOT = FinancialAdvisorChatbot()
+except ValueError as e:
+    print(f"Warning: Chatbot not initialized - {e}")
+    CHATBOT = None
+
 # --- Flask App Configuration ---
 
 app = Flask(__name__,
@@ -115,6 +127,64 @@ def compare():
 @app.route('/payment')
 def payment():
     return render_template('payment.html')
+
+@app.route('/chatbot')
+def chatbot():
+    return render_template('chatbot.html')
+
+@app.route('/api/chatbot/start', methods=['POST'])
+def chatbot_start():
+    """Start a new chatbot conversation"""
+    if not CHATBOT:
+        return jsonify({'error': 'Chatbot service not available'}), 500
+    
+    try:
+        response = CHATBOT.start_conversation()
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chatbot/respond', methods=['POST'])
+def chatbot_respond():
+    """Process user response and get next question or recommendations"""
+    if not CHATBOT:
+        return jsonify({'error': 'Chatbot service not available'}), 500
+    
+    try:
+        data = request.json
+        user_response = data.get('response', '')
+        
+        if not user_response:
+            return jsonify({'error': 'Response is required'}), 400
+        
+        response = CHATBOT.process_response(user_response)
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chatbot/summary', methods=['GET'])
+def chatbot_summary():
+    """Get conversation summary"""
+    if not CHATBOT:
+        return jsonify({'error': 'Chatbot service not available'}), 500
+    
+    try:
+        summary = CHATBOT.get_conversation_summary()
+        return jsonify(summary)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chatbot/reset', methods=['POST'])
+def chatbot_reset():
+    """Reset chatbot conversation"""
+    if not CHATBOT:
+        return jsonify({'error': 'Chatbot service not available'}), 500
+    
+    try:
+        CHATBOT.reset_conversation()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/calculate-payment', methods=['POST'])
 def calculate_payment():
