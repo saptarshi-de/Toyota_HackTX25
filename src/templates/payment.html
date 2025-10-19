@@ -562,11 +562,35 @@
         </div>
     </div>
 
+    <!-- Pass user data from server to client -->
+    <div id="user-data" data-user-data='{% if user_data %}{{ user_data | tojson | safe }}{% else %}null{% endif %}' style="display: none;"></div>
+
     <script>
         // Load data from session storage
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
         const selectedOption = JSON.parse(sessionStorage.getItem('selectedOption') || '{}');
         const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
+        
+        // Get user data from server-side template variables
+        const userDataElement = document.getElementById('user-data');
+        let userData = null;
+        if (userDataElement) {
+            try {
+                userData = JSON.parse(userDataElement.getAttribute('data-user-data'));
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                userData = null;
+            }
+        }
+        
+        // Use chatbot user data if available, otherwise fall back to survey data
+        const finalUserData = userData || {
+            income: survey.income || 50000,
+            credit_score: survey.creditScore || 700,
+            down_payment: survey.downPayment || 0
+        };
+        
+        console.log('Using user data for payment:', finalUserData);
 
         // Initialize Stripe (using test key for demo)
         const stripe = Stripe('pk_test_your_stripe_publishable_key_here');
@@ -610,15 +634,24 @@
                 <div class="price">$${(selectedVehicle.price || 0).toLocaleString()}</div>
             `;
 
+            // Calculate average interest rate if it's a range
+            let interestRate = '-';
+            if (selectedOption.rate_min && selectedOption.rate_max) {
+                const avgRate = (selectedOption.rate_min + selectedOption.rate_max) / 2;
+                interestRate = `${avgRate.toFixed(2)}%`;
+            } else if (selectedOption.rate) {
+                interestRate = `${selectedOption.rate}%`;
+            }
+
             // Summary items
             document.getElementById('vehiclePrice').textContent = `$${(selectedVehicle.price || 0).toLocaleString()}`;
-            document.getElementById('downPayment').textContent = `$${(survey.downPayment || 0).toLocaleString()}`;
+            document.getElementById('downPayment').textContent = `$${(finalUserData.down_payment || 0).toLocaleString()}`;
             document.getElementById('financingType').textContent = selectedOption.type ? selectedOption.type.charAt(0).toUpperCase() + selectedOption.type.slice(1) : '-';
-            document.getElementById('interestRate').textContent = selectedOption.rate ? `${selectedOption.rate}%` : '-';
+            document.getElementById('interestRate').textContent = interestRate;
             document.getElementById('loanTerm').textContent = selectedOption.term ? `${selectedOption.term} months` : '-';
             document.getElementById('monthlyPayment').textContent = `$${(selectedOption.monthly_payment || 0).toLocaleString()}`;
             
-            const totalAmount = (selectedVehicle.price || 0) - (survey.downPayment || 0);
+            const totalAmount = (selectedVehicle.price || 0) - (finalUserData.down_payment || 0);
             document.getElementById('totalAmount').textContent = `$${totalAmount.toLocaleString()}`;
         }
 
@@ -671,51 +704,6 @@
             }
         });
 
-        // Real Stripe integration would look like this:
-        /*
-        async function processPayment() {
-            const {error, paymentMethod} = await stripe.createPaymentMethod({
-                type: 'card',
-                card: cardElement,
-                billing_details: {
-                    name: document.getElementById('fullName').value,
-                    email: document.getElementById('email').value,
-                },
-            });
-
-            if (error) {
-                console.error('Error:', error);
-            } else {
-                // Send payment method to your server
-                const response = await fetch('/api/create-payment-intent', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        payment_method_id: paymentMethod.id,
-                        amount: totalAmount,
-                        vehicle: selectedVehicle,
-                        financing_option: selectedOption,
-                        customer_info: {
-                            name: document.getElementById('fullName').value,
-                            email: document.getElementById('email').value,
-                            phone: document.getElementById('phone').value,
-                            address: {
-                                line1: document.getElementById('address').value,
-                                city: document.getElementById('city').value,
-                                state: document.getElementById('state').value,
-                                postal_code: document.getElementById('zipCode').value,
-                            }
-                        }
-                    })
-                });
-
-                const result = await response.json();
-                // Handle result...
-            }
-        }
-        */
     </script>
 </body>
 </html>

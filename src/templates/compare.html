@@ -575,6 +575,9 @@
         </div>
     </div>
 
+    <!-- Pass user data from server to client -->
+    <div id="user-data" data-user-data='{% if user_data %}{{ user_data | tojson | safe }}{% else %}null{% endif %}' style="display: none;"></div>
+
     <script>
         let allOptions = [];
         let selectedOption = null;
@@ -584,6 +587,27 @@
         const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
         const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
+        
+        // Get user data from server-side template variables
+        const userDataElement = document.getElementById('user-data');
+        let userData = null;
+        if (userDataElement) {
+            try {
+                userData = JSON.parse(userDataElement.getAttribute('data-user-data'));
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                userData = null;
+            }
+        }
+        
+        // Use chatbot user data if available, otherwise fall back to survey data
+        const finalUserData = userData || {
+            income: survey.income || 50000,
+            credit_score: survey.creditScore || 700,
+            down_payment: survey.downPayment || 0
+        };
+        
+        console.log('Using user data:', finalUserData);
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
@@ -598,9 +622,10 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        credit_score: survey.creditScore || 700,
-                        income: survey.income || 50000,
-                        vehicle_price: selectedVehicle.price || 30000
+                        credit_score: finalUserData.credit_score,
+                        income: finalUserData.income,
+                        vehicle_price: selectedVehicle.price || 30000,
+                        down_payment: finalUserData.down_payment
                     })
                 });
 

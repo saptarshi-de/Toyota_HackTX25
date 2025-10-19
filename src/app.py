@@ -123,17 +123,49 @@ def financing():
     chatbot_responses = request.args.get('responses')
     vehicle_info = request.args.get('vehicle_info')
     
+    # Parse chatbot responses if available
+    chatbot_data = None
+    if chatbot_responses:
+        try:
+            chatbot_data = json.loads(chatbot_responses)
+        except json.JSONDecodeError:
+            print(f"Error parsing chatbot responses: {chatbot_responses}")
+            chatbot_data = None
+    
     return render_template('financing.html', 
                          chatbot_responses=chatbot_responses,
+                         chatbot_data=chatbot_data,
                          vehicle_info=vehicle_info)
 
 @app.route('/compare')
 def compare():
-    return render_template('compare.html')
+    # Get user data from URL parameters
+    user_data_param = request.args.get('userData')
+    user_data = None
+    if user_data_param:
+        try:
+            user_data = json.loads(user_data_param)
+        except json.JSONDecodeError:
+            print(f"Error parsing user data: {user_data_param}")
+            user_data = None
+    
+    return render_template('compare.html', user_data=user_data)
 
 @app.route('/payment')
 def payment():
-    return render_template('payment.html')
+    # Get user data from URL parameters
+    user_data_param = request.args.get('userData')
+    print(f"Payment route - userData param: {user_data_param}")
+    user_data = None
+    if user_data_param:
+        try:
+            user_data = json.loads(user_data_param)
+            print(f"Payment route - parsed user_data: {user_data}")
+        except json.JSONDecodeError as e:
+            print(f"Error parsing user data: {user_data_param}, error: {e}")
+            user_data = None
+    
+    return render_template('payment.html', user_data=user_data)
 
 @app.route('/chatbot')
 def chatbot():
@@ -253,8 +285,8 @@ def get_financing_options():
     data = request.json
     credit_score = data.get('credit_score', 700)
     vehicle_price = data.get('vehicle_price', 30000)
+    down_payment = data.get('down_payment', vehicle_price * 0.1)  # Use provided down payment or default to 10%
     
-    down_payment = vehicle_price * 0.1
     loan_amount = vehicle_price - down_payment
     
     rate_column = get_rate_column_name(credit_score)

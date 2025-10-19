@@ -900,9 +900,9 @@
                         ` : ''}
                         
                         <div class="action-buttons">
-                            <a href="/financing" class="action-button">
+                            <button class="action-button" onclick="chatbot.goToFinancing()">
                                 <i class="fas fa-calculator"></i> View Financing Options
-                            </a>
+                            </button>
                             <a href="/survey" class="action-button secondary">
                                 <i class="fas fa-clipboard-list"></i> Complete Survey Instead
                             </a>
@@ -1006,6 +1006,27 @@
                 } catch (error) {
                     this.showError('Failed to reset conversation. Please refresh the page.');
                 }
+            }
+
+            goToFinancing() {
+                // Get the current conversation summary to extract user data
+                fetch('/api/chatbot/summary')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.collected_data) {
+                            // Encode the user data as URL parameter
+                            const userData = encodeURIComponent(JSON.stringify(data.collected_data));
+                            window.location.href = `/financing?responses=${userData}`;
+                        } else {
+                            // Fallback to financing page without data
+                            window.location.href = '/financing';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error getting chatbot summary:', error);
+                        // Fallback to financing page without data
+                        window.location.href = '/financing';
+                    });
             }
 
         }

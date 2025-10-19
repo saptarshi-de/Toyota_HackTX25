@@ -887,6 +887,9 @@
         </div>
     </div>
 
+    <!-- Pass chatbot data from server to client -->
+    <div id="chatbot-data" data-chatbot-data='{% if chatbot_data %}{{ chatbot_data | tojson | safe }}{% else %}null{% endif %}' style="display: none;"></div>
+
     <script>
         let selectedOption = null;
         let financingOptions = [];
@@ -897,15 +900,15 @@
         const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
         
-        // Get chatbot data from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const responsesParam = urlParams.get('responses');
+        // Get chatbot data from server-side template variables
+        const chatbotDataElement = document.getElementById('chatbot-data');
         let chatbotData = null;
-        if (responsesParam) {
+        if (chatbotDataElement) {
             try {
-                chatbotData = JSON.parse(responsesParam);
+                chatbotData = JSON.parse(chatbotDataElement.getAttribute('data-chatbot-data'));
             } catch (e) {
-                console.error('Error parsing chatbot responses:', e);
+                console.error('Error parsing chatbot data:', e);
+                chatbotData = null;
             }
         }
         
@@ -913,35 +916,30 @@
         let userData = null;
         
         // Debug: Log the received data
-        console.log('URL params:', window.location.search);
-        console.log('responsesParam:', responsesParam);
-        console.log('Chatbot data received:', chatbotData);
+        console.log('Chatbot data received from server:', chatbotData);
         
         // Extract user data from chatbot data
-        if (chatbotData && chatbotData.userData) {
+        if (chatbotData) {
             userData = {
-                income: chatbotData.userData.income,
-                credit_score: chatbotData.userData.credit_score,
-                down_payment: chatbotData.userData.down_payment,
-                loan_preference: chatbotData.userData.loan_preference
+                income: parseInt(chatbotData.income) || 50000,
+                credit_score: parseInt(chatbotData.credit_score) || 700,
+                down_payment: parseInt(chatbotData.down_payment) || 0,
+                loan_preference: chatbotData.loan_preference || 'either',
+                housing_status: chatbotData.housing_status || 'rent',
+                employment_status: chatbotData.employment_status || 'full-time'
             };
-            console.log('Using chatbotData.userData:', userData);
-        } else if (chatbotData && chatbotData.user_data) {
-            // Alternative structure
-            userData = {
-                income: chatbotData.user_data.income,
-                credit_score: chatbotData.user_data.credit_score,
-                down_payment: chatbotData.user_data.down_payment,
-                loan_preference: chatbotData.user_data.loan_preference
-            };
-            console.log('Using chatbotData.user_data:', userData);
+            console.log('Using chatbot data:', userData);
         }
         
         // Only use defaults if no chatbot data is available
         if (!userData) {
             userData = {
                 income: 50000,  // Default income
-                credit_score: 700  // Default credit score
+                credit_score: 700,  // Default credit score
+                down_payment: 0,
+                loan_preference: 'either',
+                housing_status: 'rent',
+                employment_status: 'full-time'
             };
             console.log('No chatbot data found, using defaults:', userData);
         }
@@ -1205,6 +1203,10 @@
                     <div class="label">Credit Score</div>
                     <div class="value">${userData.credit_score}</div>
                 </div>
+                <div class="summary-item">
+                    <div class="label">Down Payment</div>
+                    <div class="value">$${userData.down_payment.toLocaleString()}</div>
+                </div>
             `;
         }
 
@@ -1218,7 +1220,8 @@
                     body: JSON.stringify({
                         credit_score: userData.credit_score,
                         income: userData.income,
-                        vehicle_price: selectedVehicle.price || 30000
+                        vehicle_price: selectedVehicle.price || 30000,
+                        down_payment: userData.down_payment || 0
                     })
                 });
 
@@ -1385,13 +1388,19 @@
             if (selectedOption) {
                 sessionStorage.setItem('selectedOption', JSON.stringify(selectedOption));
             }
-            window.location.href = '/compare';
+            
+            // Pass user data to compare page
+            const userDataParam = encodeURIComponent(JSON.stringify(userData));
+            window.location.href = `/compare?userData=${userDataParam}`;
         }
 
         function proceedToPayment() {
             if (selectedOption) {
                 sessionStorage.setItem('selectedOption', JSON.stringify(selectedOption));
-                window.location.href = '/payment';
+                
+                // Pass user data to payment page
+                const userDataParam = encodeURIComponent(JSON.stringify(userData));
+                window.location.href = `/payment?userData=${userDataParam}`;
             } else {
                 // Use custom modal or message box instead of alert()
                 console.error('Please select a financing option first.');
