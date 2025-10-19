@@ -18,10 +18,14 @@ if __name__ == '__main__':
     # Add src directory to Python path
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     
+    # Get port from environment variable (Railway sets this)
+    port = int(os.environ.get('PORT', 5002))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
     # Run the application
     app.run(
-        debug=True,
+        debug=debug,
         host='0.0.0.0',
-        port=5002,
+        port=port,
         threaded=True
     )
