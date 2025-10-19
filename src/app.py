@@ -113,10 +113,6 @@ def home():
 def preferences():
     return render_template('preferences.html')
 
-@app.route('/survey')
-def survey():
-    return render_template('survey.html')
-
 @app.route('/financing')
 def financing():
     # Get chatbot responses from URL parameters or session

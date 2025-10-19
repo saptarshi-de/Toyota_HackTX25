@@ -585,7 +585,6 @@
 
         // Load data from session storage
         const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
-        const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
         
         // Get user data from server-side template variables
@@ -600,11 +599,11 @@
             }
         }
         
-        // Use chatbot user data if available, otherwise fall back to survey data
+        // Use chatbot user data if available, otherwise use defaults
         const finalUserData = userData || {
-            income: survey.income || 50000,
-            credit_score: survey.creditScore || 700,
-            down_payment: survey.downPayment || 0
+            income: 50000,
+            credit_score: 700,
+            down_payment: 0
         };
         
         console.log('Using user data:', finalUserData);

@@ -833,49 +833,7 @@
             </div>
         </div>
 
-        <div class="calculator-section">
-            <h3><i class="fas fa-calculator"></i> Payment Calculator</h3>
-            <div class="calculator-form">
-                <div class="form-group">
-                    <label>Vehicle Price</label>
-                    <input type="number" id="vehiclePrice" placeholder="30000" min="15000" max="100000">
-                </div>
-                <div class="form-group">
-                    <label>Down Payment</label>
-                    <input type="number" id="downPayment" placeholder="5000" min="0" max="50000">
-                </div>
-                <div class="form-group">
-                    <label>Interest Rate (%)</label>
-                    <input type="number" id="interestRate" placeholder="5.5" min="0" max="20" step="0.1">
-                </div>
-                <div class="form-group">
-                    <label>Loan Term (months)</label>
-                    <select id="loanTerm">
-                        <option value="36">36 months</option>
-                        <option value="48">48 months</option>
-                        <option value="60" selected>60 months</option>
-                        <option value="72">72 months</option>
-                        <option value="84">84 months</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button class="calculate-btn" onclick="calculatePayment()">
-                        <i class="fas fa-calculator"></i>
-                        Calculate Payment
-                    </button>
-                </div>
-            </div>
-            <div class="calculation-result" id="calculationResult" style="display: none;">
-                <div class="monthly-payment" id="calculatedPayment">$0</div>
-                <div class="details" id="calculationDetails">Total interest and loan details</div>
-            </div>
-        </div>
-
         <div class="btn-container">
-            <a href="/survey" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i>
-                Back to Survey
-            </a>
             <button class="btn btn-primary" onclick="compareOptions()">
                 <i class="fas fa-balance-scale"></i>
                 Compare Options
@@ -897,7 +855,6 @@
 
         // Load data from session storage
         const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
-        const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
         
         // Get chatbot data from server-side template variables

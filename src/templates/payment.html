@@ -118,9 +118,125 @@
 
         .payment-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
+        }
+
+        .payment-calculator {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+
+        .payment-calculator h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calculator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .calculator-form .form-group {
+            margin-bottom: 0;
+        }
+
+        .calculator-form input,
+        .calculator-form select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .calculator-form input:focus,
+        .calculator-form select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .calculator-form input[readonly] {
+            background-color: #f9fafb;
+            color: #6b7280;
+        }
+
+        .calculate-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .calculate-btn:hover {
+            background: #2563eb;
+        }
+
+        .calculation-result {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .calculation-result .monthly-payment {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+        }
+
+        .calculation-result .details {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .pdf-btn {
+            background: #dc2626;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .pdf-btn:hover {
+            background: #b91c1c;
+        }
+
+        @media (max-width: 768px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .order-summary {
@@ -547,6 +663,50 @@
                     </button>
                 </form>
             </div>
+
+            <div class="payment-calculator">
+                <h3><i class="fas fa-calculator"></i> Payment Calculator</h3>
+                
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label>Vehicle Price</label>
+                        <input type="number" id="calcVehiclePrice" placeholder="30000" min="15000" max="100000" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Down Payment</label>
+                        <input type="number" id="calcDownPayment" placeholder="5000" min="0" max="50000" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%)</label>
+                        <input type="number" id="calcInterestRate" placeholder="5.5" min="0" max="20" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Term (months)</label>
+                        <select id="calcLoanTerm">
+                            <option value="36">36 months</option>
+                            <option value="48">48 months</option>
+                            <option value="60" selected>60 months</option>
+                            <option value="72">72 months</option>
+                            <option value="84">84 months</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="calculate-btn" onclick="calculatePaymentPlan()">
+                            <i class="fas fa-calculator"></i>
+                            Calculate Payment Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="calculation-result" id="calculationResult" style="display: none;">
+                    <div class="monthly-payment" id="calculatedPayment">$0</div>
+                    <div class="details" id="calculationDetails">Total interest and loan details</div>
+                    <button type="button" class="pdf-btn" onclick="generatePaymentPlanPDF()">
+                        <i class="fas fa-file-pdf"></i>
+                        Generate Payment Plan PDF
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="loading" id="loading">
@@ -569,7 +729,6 @@
         // Load data from session storage
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
         const selectedOption = JSON.parse(sessionStorage.getItem('selectedOption') || '{}');
-        const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
         
         // Get user data from server-side template variables
         const userDataElement = document.getElementById('user-data');
@@ -583,11 +742,11 @@
             }
         }
         
-        // Use chatbot user data if available, otherwise fall back to survey data
+        // Use chatbot user data if available, otherwise use defaults
         const finalUserData = userData || {
-            income: survey.income || 50000,
-            credit_score: survey.creditScore || 700,
-            down_payment: survey.downPayment || 0
+            income: 50000,
+            credit_score: 700,
+            down_payment: 0
         };
         
         console.log('Using user data for payment:', finalUserData);
@@ -625,6 +784,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadOrderSummary();
             setupPaymentMethods();
+            populateCalculator();
         });
 
         function loadOrderSummary() {
@@ -655,13 +815,170 @@
             document.getElementById('totalAmount').textContent = `$${totalAmount.toLocaleString()}`;
         }
 
-        function setupPaymentMethods() {
-            document.querySelectorAll('.payment-method').forEach(method => {
-                method.addEventListener('click', function() {
-                    document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
-                    this.classList.add('selected');
-                });
-            });
+        function populateCalculator() {
+            // Populate calculator with chatbot data
+            document.getElementById('calcVehiclePrice').value = selectedVehicle.price || 30000;
+            document.getElementById('calcDownPayment').value = finalUserData.down_payment || 0;
+            
+            // Set interest rate from selected option if available
+            if (selectedOption.rate_min && selectedOption.rate_max) {
+                const avgRate = (selectedOption.rate_min + selectedOption.rate_max) / 2;
+                document.getElementById('calcInterestRate').value = avgRate.toFixed(2);
+            } else if (selectedOption.rate) {
+                document.getElementById('calcInterestRate').value = selectedOption.rate;
+            } else {
+                document.getElementById('calcInterestRate').value = 5.5; // Default
+            }
+            
+            // Set loan term from selected option if available
+            if (selectedOption.term) {
+                document.getElementById('calcLoanTerm').value = selectedOption.term;
+            } else {
+                document.getElementById('calcLoanTerm').value = 60; // Default
+            }
+        }
+
+        function calculatePaymentPlan() {
+            const vehiclePrice = parseFloat(document.getElementById('calcVehiclePrice').value) || 0;
+            const downPayment = parseFloat(document.getElementById('calcDownPayment').value) || 0;
+            const interestRate = parseFloat(document.getElementById('calcInterestRate').value) || 5.5;
+            const loanTerm = parseInt(document.getElementById('calcLoanTerm').value) || 60;
+
+            const loanAmount = vehiclePrice - downPayment;
+            const monthlyRate = interestRate / 100 / 12;
+            
+            // Calculate monthly payment using the standard annuity formula
+            let monthlyPayment;
+            if (monthlyRate > 0) {
+                monthlyPayment = loanAmount * (monthlyRate * (1 + monthlyRate)**loanTerm) / ((1 + monthlyRate)**loanTerm - 1);
+            } else {
+                // Handle zero interest rate
+                monthlyPayment = loanAmount / loanTerm;
+            }
+            
+            const totalPayment = monthlyPayment * loanTerm;
+            const totalInterest = totalPayment - loanAmount;
+            
+            // Display results
+            document.getElementById('calculatedPayment').textContent = `$${monthlyPayment.toFixed(2)}`;
+            document.getElementById('calculationDetails').textContent = 
+                `Total Interest: $${totalInterest.toFixed(2)} | Total Payment: $${totalPayment.toFixed(2)}`;
+            document.getElementById('calculationResult').style.display = 'block';
+            
+            // Store calculation data for PDF generation
+            window.paymentPlanData = {
+                vehiclePrice: vehiclePrice,
+                downPayment: downPayment,
+                loanAmount: loanAmount,
+                interestRate: interestRate,
+                loanTerm: loanTerm,
+                monthlyPayment: monthlyPayment,
+                totalPayment: totalPayment,
+                totalInterest: totalInterest,
+                vehicleInfo: selectedVehicle,
+                userData: finalUserData
+            };
+        }
+
+        function generatePaymentPlanPDF() {
+            if (!window.paymentPlanData) {
+                alert('Please calculate the payment plan first.');
+                return;
+            }
+            
+            const data = window.paymentPlanData;
+            
+            // Create PDF content
+            const pdfContent = `
+                <html>
+                <head>
+                    <title>Toyota Payment Plan</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .header h1 { color: #1e3a8a; margin-bottom: 10px; }
+                        .section { margin-bottom: 25px; }
+                        .section h2 { color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
+                        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                        .info-item { margin-bottom: 10px; }
+                        .info-label { font-weight: bold; color: #6b7280; }
+                        .info-value { color: #1f2937; }
+                        .payment-summary { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+                        .monthly-payment { font-size: 24px; font-weight: bold; color: #059669; text-align: center; margin: 10px 0; }
+                        .footer { margin-top: 40px; text-align: center; color: #6b7280; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Toyota Financial Services</h1>
+                        <h2>Payment Plan</h2>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Vehicle Information</h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Vehicle:</div>
+                                <div class="info-value">${data.vehicleInfo.year || 'N/A'} ${data.vehicleInfo.make || 'N/A'} ${data.vehicleInfo.model || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Vehicle Price:</div>
+                                <div class="info-value">$${data.vehiclePrice.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Financing Details</h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Down Payment:</div>
+                                <div class="info-value">$${data.downPayment.toLocaleString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Loan Amount:</div>
+                                <div class="info-value">$${data.loanAmount.toLocaleString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Interest Rate:</div>
+                                <div class="info-value">${data.interestRate}% APR</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Loan Term:</div>
+                                <div class="info-value">${data.loanTerm} months</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-summary">
+                        <h2>Payment Summary</h2>
+                        <div class="monthly-payment">$${data.monthlyPayment.toFixed(2)}/month</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Total Interest:</div>
+                                <div class="info-value">$${data.totalInterest.toFixed(2)}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Total Payment:</div>
+                                <div class="info-value">$${data.totalPayment.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Generated on ${new Date().toLocaleDateString()}</p>
+                        <p>Toyota Financial Services - Payment Plan</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Create a new window and print the PDF
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(pdfContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
         }
 
         // Handle form submission
@@ -694,7 +1011,7 @@
                 console.log('Payment processed successfully!');
                 console.log('Selected Vehicle:', selectedVehicle);
                 console.log('Selected Option:', selectedOption);
-                console.log('Survey Data:', survey);
+                console.log('User Data:', finalUserData);
 
             } catch (error) {
                 console.error('Payment error:', error);
