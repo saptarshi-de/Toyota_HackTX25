@@ -210,24 +210,6 @@
             color: #059669;
         }
 
-        .selected-vehicle {
-            background: #f0f9ff;
-            border: 2px solid #0ea5e9;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .selected-vehicle h4 {
-            color: #0c4a6e;
-            margin-bottom: 0.5rem;
-        }
-
-        .selected-vehicle .price {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #059669;
-        }
 
         .btn-container {
             display: flex;
@@ -335,11 +317,6 @@
 
         <div class="progress-bar">
             <div class="progress-fill"></div>
-        </div>
-
-        <div class="selected-vehicle" id="selectedVehicle" style="display: none;">
-            <h4><i class="fas fa-car"></i> Selected Vehicle</h4>
-            <div id="vehicleInfo"></div>
         </div>
 
         <div class="form-container">
@@ -477,7 +454,7 @@
                         Back to Vehicles
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        Continue to Survey
+                        View Filtered Vehicles
                         <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
@@ -486,6 +463,11 @@
     </div>
 
     <script>
+        // Clear any old test data from session storage
+        sessionStorage.removeItem('selectedVehicle');
+        sessionStorage.removeItem('chatbotRecommendations');
+        sessionStorage.removeItem('chatbotUserData');
+        
         // Load selected vehicle from session storage
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || 'null');
         if (selectedVehicle) {
@@ -528,8 +510,8 @@
             // Store in session storage
             sessionStorage.setItem('preferences', JSON.stringify(formData));
             
-            // Redirect to survey
-            window.location.href = '/survey';
+            // Redirect to home page with filters
+            window.location.href = '/?filtered=true';
         });
 
         // Initialize budget display

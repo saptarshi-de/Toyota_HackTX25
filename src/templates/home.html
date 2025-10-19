@@ -235,9 +235,9 @@
             gap: 0.5rem;
         }
 
-        .btn-select {
+        .btn-financing {
             flex: 1;
-            background: #3b82f6;
+            background: #059669;
             color: white;
             padding: 10px 16px;
             border: none;
@@ -245,10 +245,15 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .btn-select:hover {
-            background: #2563eb;
+        .btn-financing:hover {
+            background: #047857;
+            transform: translateY(-1px);
         }
 
         .btn-info {
@@ -358,7 +363,7 @@
                 <li><a href="#about">About</a></li>
                 <li><a href="/chatbot">AI Advisor</a></li>
             </ul>
-            <a href="/preferences" class="cta-button">Get Started</a>
+            <a href="/survey" class="cta-button">Get Started</a>
         </nav>
     </header>
 
@@ -403,7 +408,7 @@
 
             <div class="vehicles-grid" id="vehiclesGrid">
                 {% for vehicle in vehicles %}
-                <div class="vehicle-card" data-year="{{ vehicle.year }}" data-model="{{ vehicle.model.lower() }}">
+                <div class="vehicle-card" data-year="{{ vehicle.year }}" data-model="{{ vehicle.model.lower() }}" data-price="{{ vehicle.price }}">
                     <div class="vehicle-image">
                         <i class="fas fa-car"></i>
                     </div>
@@ -412,10 +417,10 @@
                         <div class="vehicle-details">{{ vehicle.trim }} Trim</div>
                         <div class="vehicle-price">${{ "{:,}".format(vehicle.price) }}</div>
                         <div class="vehicle-actions">
-                            <button class="btn-select" onclick="selectVehicle({{ vehicle|tojson }})">
-                                Select
+                            <button class="btn-financing" data-vehicle='{{ vehicle|tojson }}' onclick="selectVehicleFromData(this)">
+                                <i class="fas fa-calculator"></i> Get Financing
                             </button>
-                            <button class="btn-info" onclick="showVehicleInfo({{ vehicle|tojson }})">
+                            <button class="btn-info" data-vehicle='{{ vehicle|tojson }}' onclick="showVehicleInfoFromData(this)">
                                 <i class="fas fa-info"></i>
                             </button>
                         </div>
@@ -478,7 +483,76 @@
     </footer>
 
     <script>
-        // Vehicle filtering
+        // Check for preferences and apply filters on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const preferences = JSON.parse(sessionStorage.getItem('preferences') || 'null');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isFiltered = urlParams.get('filtered') === 'true';
+            
+            if (preferences && isFiltered) {
+                applyPreferenceFilters(preferences);
+                showFilteredMessage();
+            }
+        });
+
+        function applyPreferenceFilters(preferences) {
+            const vehicles = document.querySelectorAll('.vehicle-card');
+            
+            vehicles.forEach(vehicle => {
+                const price = parseInt(vehicle.dataset.price);
+                const model = vehicle.dataset.model.toLowerCase();
+                const year = vehicle.dataset.year;
+                
+                let show = true;
+                
+                // Budget filter
+                if (preferences.budget) {
+                    const minBudget = preferences.budget.min || 25000;
+                    const maxBudget = preferences.budget.max || 100000;
+                    if (price < minBudget || price > maxBudget) {
+                        show = false;
+                    }
+                }
+                
+                // Vehicle type filter
+                if (preferences.vehicleTypes && preferences.vehicleTypes.length > 0) {
+                    let typeMatch = false;
+                    preferences.vehicleTypes.forEach(type => {
+                        if (type === 'sedan' && (model.includes('camry') || model.includes('corolla') || model.includes('prius'))) {
+                            typeMatch = true;
+                        } else if (type === 'suv' && (model.includes('rav4') || model.includes('highlander') || model.includes('4runner'))) {
+                            typeMatch = true;
+                        } else if (type === 'truck' && model.includes('tacoma')) {
+                            typeMatch = true;
+                        }
+                    });
+                    if (!typeMatch) {
+                        show = false;
+                    }
+                }
+                
+                vehicle.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        function showFilteredMessage() {
+            const vehicleSection = document.getElementById('vehicles');
+            if (vehicleSection) {
+                const message = document.createElement('div');
+                message.className = 'filtered-message';
+                message.innerHTML = `
+                    <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 12px; padding: 1rem; margin-bottom: 2rem; text-align: center;">
+                        <h3 style="color: #0c4a6e; margin-bottom: 0.5rem;">
+                            <i class="fas fa-filter"></i> Showing Vehicles Based on Your Preferences
+                        </h3>
+                        <p style="color: #0369a1;">These vehicles match your budget and preferences.</p>
+                    </div>
+                `;
+                vehicleSection.insertBefore(message, vehicleSection.firstChild);
+            }
+        }
+
+        // Vehicle filtering (original functionality)
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 // Remove active class from all buttons
@@ -513,16 +587,43 @@
             });
         });
 
+        function selectVehicleFromData(button) {
+            const vehicleJson = button.getAttribute('data-vehicle');
+            const vehicle = JSON.parse(vehicleJson);
+            // Store selected vehicle in session
+            sessionStorage.setItem('selectedVehicle', JSON.stringify(vehicle));
+            console.log('Selected vehicle:', vehicle);
+            
+            // Redirect to AI Advisor chatbot with vehicle data
+            const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`;
+            const url = `/chatbot?vehicle_price=${vehicle.price}&vehicle_name=${encodeURIComponent(vehicleName)}`;
+            console.log('Redirecting to chatbot:', url);
+            window.location.href = url;
+        }
+
+        function showVehicleInfoFromData(button) {
+            const vehicleJson = button.getAttribute('data-vehicle');
+            const vehicle = JSON.parse(vehicleJson);
+            alert(`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}\nPrice: $${vehicle.price.toLocaleString()}\n\nThis vehicle is perfect for those looking for a reliable Toyota with great value.`);
+        }
+
+        // Keep the old functions for backward compatibility
         function selectVehicle(vehicle) {
             // Store selected vehicle in session
             sessionStorage.setItem('selectedVehicle', JSON.stringify(vehicle));
-            // Redirect to preferences page
-            window.location.href = '/preferences';
+            console.log('Selected vehicle:', vehicle);
+            
+            // Redirect to AI Advisor chatbot with vehicle data
+            const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`;
+            const url = `/chatbot?vehicle_price=${vehicle.price}&vehicle_name=${encodeURIComponent(vehicleName)}`;
+            console.log('Redirecting to chatbot:', url);
+            window.location.href = url;
         }
 
         function showVehicleInfo(vehicle) {
             alert(`${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}\nPrice: $${vehicle.price.toLocaleString()}\n\nThis vehicle is perfect for those looking for a reliable Toyota with great value.`);
         }
+
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

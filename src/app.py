@@ -118,7 +118,13 @@ def survey():
 
 @app.route('/financing')
 def financing():
-    return render_template('financing.html')
+    # Get chatbot responses from URL parameters or session
+    chatbot_responses = request.args.get('responses')
+    vehicle_info = request.args.get('vehicle_info')
+    
+    return render_template('financing.html', 
+                         chatbot_responses=chatbot_responses,
+                         vehicle_info=vehicle_info)
 
 @app.route('/compare')
 def compare():
@@ -130,7 +136,13 @@ def payment():
 
 @app.route('/chatbot')
 def chatbot():
-    return render_template('chatbot.html')
+    # Get vehicle information from URL parameters
+    vehicle_price = request.args.get('vehicle_price')
+    vehicle_name = request.args.get('vehicle_name')
+    
+    return render_template('chatbot.html', 
+                         vehicle_price=vehicle_price, 
+                         vehicle_name=vehicle_name)
 
 @app.route('/api/chatbot/start', methods=['POST'])
 def chatbot_start():
@@ -139,7 +151,15 @@ def chatbot_start():
         return jsonify({'error': 'Chatbot service not available'}), 500
     
     try:
-        response = CHATBOT.start_conversation()
+        # Get vehicle information from request data
+        data = request.get_json() or {}
+        vehicle_price = data.get('vehicle_price')
+        vehicle_name = data.get('vehicle_name')
+        
+        # Create new chatbot instance with vehicle info
+        chatbot_instance = FinancialAdvisorChatbot(vehicle_price=vehicle_price, vehicle_name=vehicle_name)
+        
+        response = chatbot_instance.start_conversation()
         return jsonify(response)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -331,5 +351,5 @@ def get_financing_options():
     
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5002))
-    debug = os.environ.get('FLASK_ENV') == 'development'
+    debug = True  # Force debug mode for template reloading
     app.run(debug=debug, host='0.0.0.0', port=port)

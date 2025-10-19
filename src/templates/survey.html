@@ -340,6 +340,43 @@
             gap: 8px;
         }
 
+        .selected-vehicle-card {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .selected-vehicle-card h3 {
+            color: #0c4a6e;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vehicle-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e0e7ff;
+        }
+
+        .vehicle-details h4 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .vehicle-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -387,6 +424,17 @@
         <div class="header">
             <h1><i class="fas fa-chart-line"></i> Financial Survey</h1>
             <p>Help us understand your financial situation to provide the best financing options</p>
+        </div>
+
+        <!-- Selected Vehicle Display -->
+        <div id="selectedVehicleCard" class="selected-vehicle-card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fas fa-car"></i> Selected Vehicle</h3>
+                <a href="/" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
+                    <i class="fas fa-edit"></i> Change Vehicle
+                </a>
+            </div>
+            <div id="selectedVehicleInfo"></div>
         </div>
 
         <div class="progress-bar">
@@ -548,6 +596,22 @@
     </div>
 
     <script>
+        // Load selected vehicle from session storage
+        const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || 'null');
+        
+        // Display selected vehicle if available
+        if (selectedVehicle) {
+            document.getElementById('selectedVehicleCard').style.display = 'block';
+            document.getElementById('selectedVehicleInfo').innerHTML = `
+                <div class="vehicle-summary">
+                    <div class="vehicle-details">
+                        <h4>${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}</h4>
+                        <div>${selectedVehicle.trim} Trim</div>
+                    </div>
+                    <div class="vehicle-price">$${selectedVehicle.price.toLocaleString()}</div>
+                </div>
+            `;
+        }
 
         // Load data from session storage
         const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
@@ -650,8 +714,14 @@
             // Store in session storage
             sessionStorage.setItem('survey', JSON.stringify(formData));
             
-            // Redirect to financing options
-            window.location.href = '/financing';
+            // Redirect to chatbot with vehicle information
+            if (selectedVehicle) {
+                const vehicleInfo = `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim}`;
+                window.location.href = `/chatbot?vehicle_name=${encodeURIComponent(vehicleInfo)}&vehicle_price=${selectedVehicle.price}`;
+            } else {
+                // Fallback to chatbot without vehicle information
+                window.location.href = '/chatbot';
+            }
         });
 
         // Initialize displays

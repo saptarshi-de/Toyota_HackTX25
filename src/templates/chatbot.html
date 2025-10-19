@@ -228,6 +228,35 @@
             font-style: italic;
         }
 
+        .vehicle-info-banner {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .vehicle-info-banner i {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .vehicle-info-content h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .vehicle-info-content p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
         .question-options {
             display: flex;
             flex-direction: column;
@@ -572,11 +601,21 @@
             <h1><i class="fas fa-robot"></i> Financial Advisor</h1>
             <p>Get personalized financing recommendations for your Toyota vehicle</p>
             
+            {% if vehicle_name and vehicle_price %}
+            <div class="vehicle-info-banner">
+                <i class="fas fa-car"></i>
+                <div class="vehicle-info-content">
+                    <h3>{{ vehicle_name }}</h3>
+                    <p>Vehicle Price: ${{ "{:,}".format(vehicle_price|int) }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">Step 1 of 7</div>
+                <div class="progress-text" id="progressText">Step 1 of 6</div>
             </div>
         </div>
 
@@ -622,11 +661,26 @@
             async startConversation() {
                 try {
                     this.showLoading('Starting conversation...');
+                    
+                    // Get vehicle information from URL parameters or template variables
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const vehiclePrice = urlParams.get('vehicle_price') || '{{ vehicle_price }}';
+                    const vehicleName = urlParams.get('vehicle_name') || '{{ vehicle_name }}';
+                    
+                    const requestData = {};
+                    if (vehiclePrice && vehiclePrice !== 'None') {
+                        requestData.vehicle_price = vehiclePrice;
+                    }
+                    if (vehicleName && vehicleName !== 'None') {
+                        requestData.vehicle_name = vehicleName;
+                    }
+                    
                     const response = await fetch('/api/chatbot/start', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                        }
+                        },
+                        body: JSON.stringify(requestData)
                     });
 
                     const data = await response.json();
@@ -846,7 +900,7 @@
                         ` : ''}
                         
                         <div class="action-buttons">
-                            <a href="/financing" class="action-button">
+                            <a href="/financing" class="action-button" onclick="goToFinancing(event, ${JSON.stringify(recommendations)}, ${JSON.stringify(userData)})">
                                 <i class="fas fa-calculator"></i> View Financing Options
                             </a>
                             <a href="/survey" class="action-button secondary">
@@ -953,6 +1007,29 @@
                     this.showError('Failed to reset conversation. Please refresh the page.');
                 }
             }
+        }
+
+        // Global function to handle navigation to financing page
+        function goToFinancing(event, recommendations, userData) {
+            event.preventDefault();
+            
+            // Store data in session storage
+            sessionStorage.setItem('chatbotRecommendations', JSON.stringify(recommendations));
+            sessionStorage.setItem('chatbotUserData', JSON.stringify(userData));
+            
+            // Get vehicle information
+            const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || 'null');
+            let vehicleInfo = '';
+            if (selectedVehicle) {
+                vehicleInfo = `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim} - $${selectedVehicle.price.toLocaleString()}`;
+            }
+            
+            // Redirect to financing page with data
+            const params = new URLSearchParams();
+            params.set('responses', JSON.stringify({recommendations, userData}));
+            params.set('vehicle_info', vehicleInfo);
+            
+            window.location.href = `/financing?${params.toString()}`;
         }
 
         // Initialize chatbot when page loads

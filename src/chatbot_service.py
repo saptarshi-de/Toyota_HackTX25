@@ -8,8 +8,8 @@ import json
 from typing import Dict, List, Optional, Tuple
 
 class FinancialAdvisorChatbot:
-    def __init__(self):
-        """Initialize the chatbot with Gemini API"""
+    def __init__(self, vehicle_price=None, vehicle_name=None):
+        """Initialize the chatbot with Gemini API and optional vehicle information"""
         # Set up Gemini API
         api_key = os.getenv('GEMINI_API_KEY')
         if not api_key:
@@ -17,6 +17,10 @@ class FinancialAdvisorChatbot:
         
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Store vehicle information
+        self.vehicle_price = vehicle_price
+        self.vehicle_name = vehicle_name
         
         # Chatbot state
         self.conversation_state = {
@@ -28,12 +32,16 @@ class FinancialAdvisorChatbot:
                 'housing_status',
                 'employment_status',
                 'down_payment',
-                'loan_preference',
-                'vehicle_preference'
+                'loan_preference'
             ],
             'current_step': 0,
             'completed': False
         }
+        
+        # Add vehicle preference to collected data if provided
+        if vehicle_name and vehicle_price:
+            self.conversation_state['collected_data']['vehicle_preference'] = vehicle_name
+            self.conversation_state['collected_data']['vehicle_price'] = vehicle_price
         
         # Question templates with options
         self.question_templates = {
