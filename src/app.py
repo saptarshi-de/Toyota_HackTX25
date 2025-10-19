@@ -101,6 +101,10 @@ app = Flask(__name__,
             static_folder='static')
 app.secret_key = 'toyota-financial-secret-key-2024'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 1800  # 30 minutes
 CORS(app)
 
 # --- Routes ---
@@ -188,9 +192,20 @@ def chatbot_start():
         # Create new chatbot instance with vehicle info
         chatbot_instance = FinancialAdvisorChatbot(vehicle_price=vehicle_price, vehicle_name=vehicle_name)
         
+        # Store chatbot instance in session
+        session['chatbot_instance'] = {
+            'vehicle_price': vehicle_price,
+            'vehicle_name': vehicle_name,
+            'conversation_state': chatbot_instance.conversation_state.copy()
+        }
+        
+        # Mark session as permanent to use the configured lifetime
+        session.permanent = True
+        
         response = chatbot_instance.start_conversation()
         return jsonify(response)
     except Exception as e:
+        print(f"Error in chatbot start: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/chatbot/respond', methods=['POST'])
@@ -206,33 +221,69 @@ def chatbot_respond():
         if not user_response:
             return jsonify({'error': 'Response is required'}), 400
         
-        response = CHATBOT.process_response(user_response)
+        # Get chatbot instance from session
+        chatbot_data = session.get('chatbot_instance')
+        if not chatbot_data:
+            return jsonify({'error': 'No active conversation. Please start a new conversation.'}), 400
+        
+        # Create new chatbot instance with stored data
+        chatbot_instance = FinancialAdvisorChatbot(
+            vehicle_price=chatbot_data['vehicle_price'],
+            vehicle_name=chatbot_data['vehicle_name']
+        )
+        
+        # Restore conversation state
+        chatbot_instance.conversation_state = chatbot_data['conversation_state'].copy()
+        
+        # Process response
+        response = chatbot_instance.process_response(user_response)
+        
+        # Update session with new conversation state
+        session['chatbot_instance']['conversation_state'] = chatbot_instance.conversation_state.copy()
+        
         return jsonify(response)
     except Exception as e:
+        print(f"Error in chatbot respond: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/chatbot/summary', methods=['GET'])
 def chatbot_summary():
     """Get conversation summary"""
-    if not CHATBOT:
-        return jsonify({'error': 'Chatbot service not available'}), 500
-    
     try:
-        summary = CHATBOT.get_conversation_summary()
+        # Get chatbot instance from session
+        chatbot_data = session.get('chatbot_instance')
+        if not chatbot_data:
+            return jsonify({'error': 'No active conversation'}), 400
+        
+        # Create chatbot instance with stored data
+        chatbot_instance = FinancialAdvisorChatbot(
+            vehicle_price=chatbot_data['vehicle_price'],
+            vehicle_name=chatbot_data['vehicle_name']
+        )
+        
+        # Restore conversation state
+        chatbot_instance.conversation_state = chatbot_data['conversation_state'].copy()
+        
+        summary = {
+            'collected_data': chatbot_instance.conversation_state['collected_data'],
+            'current_step': chatbot_instance.conversation_state['current_step'],
+            'completed': chatbot_instance.conversation_state['completed']
+        }
+        
         return jsonify(summary)
     except Exception as e:
+        print(f"Error in chatbot summary: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/chatbot/reset', methods=['POST'])
 def chatbot_reset():
     """Reset chatbot conversation"""
-    if not CHATBOT:
-        return jsonify({'error': 'Chatbot service not available'}), 500
-    
     try:
-        CHATBOT.reset_conversation()
+        # Clear chatbot session
+        session.pop('chatbot_instance', None)
         return jsonify({'success': True})
     except Exception as e:
+        print(f"Error in chatbot reset: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/calculate-payment', methods=['POST'])
