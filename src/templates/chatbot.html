@@ -471,6 +471,44 @@
             margin: 1rem 0;
         }
 
+        .validation-error {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .error-icon {
+            color: #f59e0b;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .error-content h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .error-content .error-message {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .error-content .help-text {
+            color: #92400e;
+            font-style: italic;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -630,6 +668,8 @@
                         this.displayRecommendations(data);
                     } else if (data.type === 'question') {
                         this.displayQuestion(data);
+                    } else if (data.type === 'validation_error') {
+                        this.displayValidationError(data);
                     }
                 } catch (error) {
                     this.showError('Failed to process response. Please try again.');
@@ -643,6 +683,31 @@
                 this.updateProgress(questionData.step, questionData.total_steps);
                 
                 const questionHtml = this.createQuestionHtml(questionData);
+                this.addMessage(questionHtml, 'bot', true);
+                
+                this.setInputState(true);
+            }
+
+            displayValidationError(errorData) {
+                this.updateProgress(errorData.step, errorData.total_steps);
+                
+                let errorHtml = `
+                    <div class="validation-error">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="error-content">
+                            <h4>Please try again</h4>
+                            <p class="error-message">${errorData.error_message}</p>
+                            ${errorData.help_text ? `<p class="help-text">💡 ${errorData.help_text}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(errorHtml, 'bot', true);
+                
+                // Re-display the question with error styling
+                const questionHtml = this.createQuestionHtml(errorData);
                 this.addMessage(questionHtml, 'bot', true);
                 
                 this.setInputState(true);

@@ -138,8 +138,24 @@ class FinancialAdvisorChatbot:
         
         current_question_key = self.conversation_state['question_flow'][self.conversation_state['current_step']]
         
-        # Store the response
-        self.conversation_state['collected_data'][current_question_key] = user_response
+        # Validate the user response
+        validation_result = self._validate_response(user_response, current_question_key)
+        
+        if not validation_result['valid']:
+            # Return validation error with helpful message
+            return {
+                'type': 'validation_error',
+                'question': self.question_templates[current_question_key]['question'],
+                'question_type': self.question_templates[current_question_key]['type'],
+                'options': self.question_templates[current_question_key]['options'],
+                'error_message': validation_result['message'],
+                'step': self.conversation_state['current_step'] + 1,
+                'total_steps': len(self.conversation_state['question_flow']),
+                'help_text': validation_result.get('help_text', '')
+            }
+        
+        # Store the validated response
+        self.conversation_state['collected_data'][current_question_key] = validation_result['processed_value']
         
         # Move to next question
         self.conversation_state['current_step'] += 1
@@ -149,6 +165,192 @@ class FinancialAdvisorChatbot:
             return self._generate_recommendations()
         else:
             return self._get_next_question()
+
+    def _validate_response(self, user_response: str, question_key: str) -> Dict:
+        """Validate user response based on question type and return validation result"""
+        user_response = user_response.strip()
+        
+        if not user_response:
+            return {
+                'valid': False,
+                'message': "Please provide a response. I need this information to help you get the best financing options.",
+                'help_text': "You can't leave this field empty."
+            }
+        
+        # Check for obviously invalid responses
+        invalid_responses = ['asdf', 'qwerty', '123', 'abc', 'test', 'hello', 'hi', 'yes', 'no', 'maybe', 'idk', 'dunno', 'whatever']
+        if user_response.lower() in invalid_responses:
+            return {
+                'valid': False,
+                'message': f"I understand you might be unsure, but '{user_response}' isn't a valid response for this question.",
+                'help_text': "Please provide a real answer so I can help you properly."
+            }
+        
+        # Question-specific validation
+        if question_key == 'income':
+            return self._validate_income(user_response)
+        elif question_key == 'credit_score':
+            return self._validate_credit_score(user_response)
+        elif question_key == 'housing_status':
+            return self._validate_housing_status(user_response)
+        elif question_key == 'employment_status':
+            return self._validate_employment_status(user_response)
+        elif question_key == 'down_payment':
+            return self._validate_down_payment(user_response)
+        elif question_key == 'loan_preference':
+            return self._validate_loan_preference(user_response)
+        elif question_key == 'vehicle_preference':
+            return self._validate_vehicle_preference(user_response)
+        
+        return {'valid': True, 'processed_value': user_response}
+    
+    def _validate_income(self, response: str) -> Dict:
+        """Validate income input"""
+        try:
+            # Remove common currency symbols and commas
+            cleaned = response.replace('$', '').replace(',', '').replace('k', '000').replace('K', '000')
+            
+            # Handle ranges like "50-60k"
+            if '-' in cleaned:
+                parts = cleaned.split('-')
+                if len(parts) == 2:
+                    low = float(parts[0].strip())
+                    high = float(parts[1].strip())
+                    income = (low + high) / 2
+                else:
+                    return {'valid': False, 'message': "Please enter a single income amount, not a range.", 'help_text': "Example: 75000 or 75k"}
+            else:
+                income = float(cleaned)
+            
+            if income < 10000:
+                return {'valid': False, 'message': "That income seems too low for vehicle financing. Please enter your actual annual household income.", 'help_text': "Include all sources of income for your household."}
+            elif income > 1000000:
+                return {'valid': False, 'message': "That income seems unusually high. Please double-check and enter your actual annual household income.", 'help_text': "Enter your total household income before taxes."}
+            
+            return {'valid': True, 'processed_value': str(int(income))}
+            
+        except ValueError:
+            return {'valid': False, 'message': "Please enter a valid income amount (numbers only).", 'help_text': "Examples: 75000, 75k, $75,000"}
+    
+    def _validate_credit_score(self, response: str) -> Dict:
+        """Validate credit score input"""
+        try:
+            score = int(response)
+            
+            if score < 300:
+                return {'valid': False, 'message': "Credit scores start at 300. Please enter a valid credit score.", 'help_text': "Credit scores range from 300 to 850."}
+            elif score > 850:
+                return {'valid': False, 'message': "Credit scores max out at 850. Please enter a valid credit score.", 'help_text': "Credit scores range from 300 to 850."}
+            elif score < 500:
+                return {'valid': False, 'message': f"A credit score of {score} is quite low. Are you sure this is correct?", 'help_text': "You can check your credit score for free at annualcreditreport.com"}
+            
+            return {'valid': True, 'processed_value': str(score)}
+            
+        except ValueError:
+            return {'valid': False, 'message': "Please enter a valid credit score (numbers only).", 'help_text': "Credit scores are typically between 300-850."}
+    
+    def _validate_housing_status(self, response: str) -> Dict:
+        """Validate housing status input"""
+        valid_options = ['own', 'own_outright', 'rent', 'other']
+        response_lower = response.lower()
+        
+        # Check for exact matches
+        if response_lower in valid_options:
+            return {'valid': True, 'processed_value': response_lower}
+        
+        # Check for partial matches
+        if 'own' in response_lower and 'mortgage' in response_lower:
+            return {'valid': True, 'processed_value': 'own'}
+        elif 'own' in response_lower and ('outright' in response_lower or 'paid' in response_lower):
+            return {'valid': True, 'processed_value': 'own_outright'}
+        elif 'rent' in response_lower or 'renting' in response_lower:
+            return {'valid': True, 'processed_value': 'rent'}
+        
+        return {'valid': False, 'message': f"I don't recognize '{response}' as a housing status. Please choose from the options provided.", 'help_text': "Select: Own (with mortgage), Own outright, Rent, or Other"}
+    
+    def _validate_employment_status(self, response: str) -> Dict:
+        """Validate employment status input"""
+        valid_options = ['full-time', 'part-time', 'self-employed', 'contractor', 'unemployed', 'retired']
+        response_lower = response.lower()
+        
+        # Check for exact matches
+        if response_lower in valid_options:
+            return {'valid': True, 'processed_value': response_lower}
+        
+        # Check for partial matches
+        if 'full' in response_lower and 'time' in response_lower:
+            return {'valid': True, 'processed_value': 'full-time'}
+        elif 'part' in response_lower and 'time' in response_lower:
+            return {'valid': True, 'processed_value': 'part-time'}
+        elif 'self' in response_lower and 'employ' in response_lower:
+            return {'valid': True, 'processed_value': 'self-employed'}
+        elif 'contract' in response_lower or 'freelance' in response_lower:
+            return {'valid': True, 'processed_value': 'contractor'}
+        elif 'unemploy' in response_lower or 'jobless' in response_lower:
+            return {'valid': True, 'processed_value': 'unemployed'}
+        elif 'retire' in response_lower:
+            return {'valid': True, 'processed_value': 'retired'}
+        
+        return {'valid': False, 'message': f"I don't recognize '{response}' as an employment status. Please choose from the options provided.", 'help_text': "Select: Full-time Employee, Part-time Employee, Self-employed, Contractor, Unemployed, or Retired"}
+    
+    def _validate_down_payment(self, response: str) -> Dict:
+        """Validate down payment input"""
+        try:
+            # Remove currency symbols and commas
+            cleaned = response.replace('$', '').replace(',', '').replace('k', '000').replace('K', '000')
+            amount = float(cleaned)
+            
+            if amount < 0:
+                return {'valid': False, 'message': "Down payment can't be negative. Please enter a positive amount.", 'help_text': "Enter 0 if you don't have a down payment."}
+            elif amount > 100000:
+                return {'valid': False, 'message': "That's a very large down payment. Please double-check the amount.", 'help_text': "Most down payments are between $0-$50,000."}
+            
+            return {'valid': True, 'processed_value': str(int(amount))}
+            
+        except ValueError:
+            return {'valid': False, 'message': "Please enter a valid down payment amount (numbers only).", 'help_text': "Examples: 5000, $5,000, 5k"}
+    
+    def _validate_loan_preference(self, response: str) -> Dict:
+        """Validate loan preference input"""
+        valid_options = ['financing', 'lease', 'either']
+        response_lower = response.lower()
+        
+        # Check for exact matches
+        if response_lower in valid_options:
+            return {'valid': True, 'processed_value': response_lower}
+        
+        # Check for partial matches
+        if 'buy' in response_lower or 'purchase' in response_lower or 'finance' in response_lower:
+            return {'valid': True, 'processed_value': 'financing'}
+        elif 'lease' in response_lower or 'rent' in response_lower:
+            return {'valid': True, 'processed_value': 'lease'}
+        elif 'both' in response_lower or 'any' in response_lower or 'doesn\'t matter' in response_lower:
+            return {'valid': True, 'processed_value': 'either'}
+        
+        return {'valid': False, 'message': f"I don't recognize '{response}' as a loan preference. Please choose from the options provided.", 'help_text': "Select: Financing (Purchase), Leasing, or Either is fine"}
+    
+    def _validate_vehicle_preference(self, response: str) -> Dict:
+        """Validate vehicle preference input"""
+        valid_options = ['sedan', 'suv', 'hybrid', 'truck', 'any']
+        response_lower = response.lower()
+        
+        # Check for exact matches
+        if response_lower in valid_options:
+            return {'valid': True, 'processed_value': response_lower}
+        
+        # Check for partial matches
+        if 'car' in response_lower or 'sedan' in response_lower:
+            return {'valid': True, 'processed_value': 'sedan'}
+        elif 'suv' in response_lower or 'sport' in response_lower:
+            return {'valid': True, 'processed_value': 'suv'}
+        elif 'hybrid' in response_lower or 'electric' in response_lower or 'ev' in response_lower:
+            return {'valid': True, 'processed_value': 'hybrid'}
+        elif 'truck' in response_lower or 'pickup' in response_lower:
+            return {'valid': True, 'processed_value': 'truck'}
+        elif 'any' in response_lower or 'doesn\'t matter' in response_lower or 'no preference' in response_lower:
+            return {'valid': True, 'processed_value': 'any'}
+        
+        return {'valid': False, 'message': f"I don't recognize '{response}' as a vehicle type. Please choose from the options provided.", 'help_text': "Select: Sedan, SUV, Hybrid/Electric, Truck, or Any type"}
 
     def _get_next_question(self) -> Dict:
         """Get the next question in the flow"""
@@ -172,6 +374,8 @@ class FinancialAdvisorChatbot:
         try:
             # Prepare context for Gemini
             user_data = self.conversation_state['collected_data']
+            
+            print(f"🤖 Attempting to generate AI recommendations with user data: {user_data}")
             
             prompt = f"""
             You are an expert Toyota Financial Services advisor with 15+ years of experience in automotive financing. You specialize in helping customers make optimal financial decisions for Toyota vehicle purchases and leases.
@@ -279,44 +483,18 @@ class FinancialAdvisorChatbot:
             
             response = self.model.generate_content(prompt)
             
+            print(f"🤖 Gemini API response received: {len(response.text)} characters")
+            print(f"🤖 Response preview: {response.text[:200]}...")
+            
             # Parse the JSON response
             try:
                 recommendations = json.loads(response.text)
-            except json.JSONDecodeError:
-                # Fallback if JSON parsing fails
-                recommendations = {
-                    "recommendation": "Based on your profile, we recommend exploring both financing and leasing options.",
-                    "reasoning": "Your financial profile suggests you have good options available. We recommend comparing both financing and leasing to find the best fit for your situation.",
-                    "financial_analysis": {
-                        "debt_to_income_ratio": "Analysis unavailable - please complete financial assessment",
-                        "affordable_monthly_payment": "Based on income, consider payments under 15% of monthly income",
-                        "credit_tier": "Please provide credit score for accurate assessment",
-                        "risk_level": "Medium - complete assessment needed for accurate risk evaluation"
-                    },
-                    "tips": [
-                        "Consider improving your credit score for better rates",
-                        "A larger down payment can reduce monthly payments",
-                        "Compare financing vs leasing based on your driving habits",
-                        "Explore Toyota Financial Services promotional rates"
-                    ],
-                    "suggested_terms": {
-                        "loan_term": "60 months for optimal rate vs payment balance",
-                        "down_payment": "10-20% of vehicle price for better rates",
-                        "financing_type": "financing recommended for most customers",
-                        "interest_rate_range": "Rate depends on credit score - excellent credit gets 0.9-2.9%"
-                    },
-                    "concerns": [],
-                    "next_steps": [
-                        "Complete detailed financial assessment",
-                        "Review Toyota Financial Services options",
-                        "Compare financing vs leasing scenarios"
-                    ],
-                    "toyota_advantages": [
-                        "Toyota Financial Services promotional rates",
-                        "Certified Pre-Owned programs",
-                        "Loyalty programs for existing customers"
-                    ]
-                }
+                print("✅ Successfully parsed JSON response from Gemini AI")
+            except json.JSONDecodeError as json_error:
+                print(f"JSON parsing error: {json_error}")
+                print(f"Raw response: {response.text[:500]}...")
+                # Generate personalized fallback based on user data
+                recommendations = self._generate_personalized_fallback(user_data)
             
             return {
                 'type': 'recommendations',
@@ -327,11 +505,131 @@ class FinancialAdvisorChatbot:
             
         except Exception as e:
             print(f"Error generating recommendations: {e}")
+            # Generate personalized fallback based on user data
+            recommendations = self._generate_personalized_fallback(user_data)
             return {
-                'type': 'error',
-                'message': 'Unable to generate recommendations at this time. Please try again.',
-                'user_data': self.conversation_state['collected_data']
+                'type': 'recommendations',
+                'recommendations': recommendations,
+                'user_data': user_data,
+                'completed': True
             }
+
+    def _generate_personalized_fallback(self, user_data: Dict) -> Dict:
+        """Generate personalized recommendations based on user data when AI fails"""
+        income = int(user_data.get('income', 75000))
+        credit_score = int(user_data.get('credit_score', 700))
+        housing_status = user_data.get('housing_status', 'rent')
+        employment_status = user_data.get('employment_status', 'full-time')
+        down_payment = int(user_data.get('down_payment', 5000))
+        loan_preference = user_data.get('loan_preference', 'either')
+        vehicle_preference = user_data.get('vehicle_preference', 'any')
+        
+        # Calculate debt-to-income ratio (simplified)
+        monthly_income = income / 12
+        max_monthly_payment = monthly_income * 0.15  # 15% rule
+        
+        # Determine credit tier
+        if credit_score >= 760:
+            credit_tier = "Excellent (760+)"
+            risk_level = "Low"
+            interest_rate_range = "0.9% - 2.9%"
+        elif credit_score >= 660:
+            credit_tier = "Good (660-759)"
+            risk_level = "Low-Medium"
+            interest_rate_range = "2.9% - 7.5%"
+        elif credit_score >= 580:
+            credit_tier = "Fair (580-659)"
+            risk_level = "Medium"
+            interest_rate_range = "7.5% - 12.0%"
+        else:
+            credit_tier = "Poor (<580)"
+            risk_level = "High"
+            interest_rate_range = "12.0% - 22.0%"
+        
+        # Generate personalized recommendation
+        if credit_score >= 700 and income >= 60000:
+            recommendation = "Financing (Purchase) is recommended for your profile"
+            reasoning = f"With a {credit_score} credit score and ${income:,} income, you qualify for excellent rates. Financing allows you to build equity and own your vehicle long-term."
+            suggested_financing_type = "financing"
+        elif credit_score >= 650 and income >= 40000:
+            recommendation = "Both financing and leasing are viable options"
+            reasoning = f"Your {credit_score} credit score and ${income:,} income give you good options. Consider your driving habits and long-term goals."
+            suggested_financing_type = loan_preference if loan_preference != 'either' else 'financing'
+        else:
+            recommendation = "Leasing may be more accessible for your current situation"
+            reasoning = f"With a {credit_score} credit score, leasing often offers better approval rates and lower monthly payments than financing."
+            suggested_financing_type = "lease"
+        
+        # Generate personalized tips
+        tips = []
+        if credit_score < 700:
+            tips.append(f"Improve your credit score from {credit_score} to 700+ for better rates")
+        if down_payment < income * 0.1:
+            tips.append(f"Consider increasing your ${down_payment:,} down payment to 10-20% of vehicle price")
+        if employment_status in ['part-time', 'contractor']:
+            tips.append("Full-time employment typically provides better financing approval")
+        if housing_status == 'rent':
+            tips.append("Home ownership can improve your credit profile for future financing")
+        
+        # Add Toyota-specific tips
+        if vehicle_preference == 'hybrid':
+            tips.append("Toyota hybrids have excellent residual values - great for leasing")
+        elif vehicle_preference == 'suv':
+            tips.append("Toyota SUVs (RAV4, Highlander) hold value well for financing")
+        
+        tips.append("Explore Toyota Financial Services promotional rates and programs")
+        
+        # Generate concerns
+        concerns = []
+        if credit_score < 600:
+            concerns.append(f"Credit score of {credit_score} may limit financing options")
+        if income < 30000:
+            concerns.append("Lower income may require larger down payment for approval")
+        if employment_status == 'unemployed':
+            concerns.append("Employment verification required for financing approval")
+        
+        # Generate next steps
+        next_steps = [
+            "Review your credit report for any errors",
+            "Calculate your exact monthly budget for payments",
+            "Compare Toyota Financial Services rates with other lenders"
+        ]
+        
+        if suggested_financing_type == 'lease':
+            next_steps.append("Consider mileage requirements for leasing")
+        else:
+            next_steps.append("Determine your ideal loan term (36-84 months)")
+        
+        # Toyota advantages
+        toyota_advantages = [
+            "Toyota Financial Services promotional rates (as low as 0.9%)",
+            "Certified Pre-Owned programs with extended warranties",
+            "Loyalty programs for existing Toyota customers"
+        ]
+        
+        if vehicle_preference == 'hybrid':
+            toyota_advantages.append("Toyota hybrid vehicles have excellent lease residuals")
+        
+        return {
+            "recommendation": recommendation,
+            "reasoning": reasoning,
+            "financial_analysis": {
+                "debt_to_income_ratio": f"Maximum affordable payment: ${max_monthly_payment:,.0f}/month (15% of income)",
+                "affordable_monthly_payment": f"${max_monthly_payment:,.0f} per month maximum",
+                "credit_tier": credit_tier,
+                "risk_level": risk_level
+            },
+            "tips": tips,
+            "suggested_terms": {
+                "loan_term": "60 months for optimal rate vs payment balance",
+                "down_payment": f"${down_payment:,} ({down_payment/income*100:.1f}% of income)",
+                "financing_type": suggested_financing_type,
+                "interest_rate_range": interest_rate_range
+            },
+            "concerns": concerns,
+            "next_steps": next_steps,
+            "toyota_advantages": toyota_advantages
+        }
 
     def get_conversation_summary(self) -> Dict:
         """Get a summary of the current conversation"""
