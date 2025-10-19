@@ -457,6 +457,11 @@
     </div>
 
     <script>
+
+        // Load data from session storage
+        const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
+        const existingSurvey = JSON.parse(sessionStorage.getItem('survey') || '{}');
+
         // Income slider
         const incomeSlider = document.getElementById('incomeSlider');
         const incomeDisplay = document.getElementById('incomeDisplay');
@@ -489,6 +494,49 @@
                 creditRating.style.color = '#ef4444';
             }
         });
+
+        function initializeSurveyForm() {
+            // Priority: Existing Survey data (if user came back) OR Preferences data
+            
+            // Financials (Down Payment and Loan Term are the critical ones)
+            const initialDownPayment = existingSurvey.downPayment || preferences.preferredDownPayment || '';
+            const initialLoanTerm = existingSurvey.loanTerm || preferences.preferredLoanTerm || '';
+            
+            if (initialDownPayment) {
+                document.getElementById('downPayment').value = initialDownPayment;
+            }
+            
+            if (initialLoanTerm) {
+                document.getElementById('loanTerm').value = initialLoanTerm;
+            }
+
+            // Other fields initialization (using existingSurvey data if available)
+            // Income
+            if (existingSurvey.income) {
+                incomeSlider.value = existingSurvey.income;
+            }
+            // Credit Score
+            if (existingSurvey.creditScore) {
+                creditSlider.value = existingSurvey.creditScore;
+            }
+            // Housing
+            if (existingSurvey.housingStatus) {
+                document.getElementById('housingStatus').value = existingSurvey.housingStatus;
+            }
+            if (existingSurvey.housingPayment) {
+                document.getElementById('housingPayment').value = existingSurvey.housingPayment;
+            }
+            // Employment
+            if (existingSurvey.employmentStatus) {
+                 document.getElementById('employmentStatus').value = existingSurvey.employmentStatus;
+            }
+            if (existingSurvey.jobTenure) {
+                 document.getElementById('jobTenure').value = existingSurvey.jobTenure;
+            }
+            if (existingSurvey.financingType) {
+                 document.getElementById('financingType').value = existingSurvey.financingType;
+            }
+        }
 
         // Form submission
         document.getElementById('surveyForm').addEventListener('submit', function(e) {

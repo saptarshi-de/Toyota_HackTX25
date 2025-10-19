@@ -478,6 +478,29 @@
             loadFinancingOptions();
         });
 
+        function initializeCalculator() {
+            // Initialize calculator with selected vehicle price
+            if (selectedVehicle.price) {
+                document.getElementById('vehiclePrice').value = selectedVehicle.price;
+            }
+
+            // Initialize down payment from the survey data
+            if (survey.downPayment) {
+                document.getElementById('downPayment').value = survey.downPayment;
+            }
+            
+            // Initialize loan term from the survey data, if set and valid
+            if (survey.loanTerm) {
+                const loanTermSelect = document.getElementById('loanTerm');
+                // Check if the survey term is one of the available options
+                const validTerm = Array.from(loanTermSelect.options).some(opt => opt.value === survey.loanTerm);
+                
+                if (validTerm) {
+                    loanTermSelect.value = survey.loanTerm;
+                }
+            }
+        }
+
         function loadSummary() {
             const summaryCard = document.getElementById('summaryCard');
             summaryCard.innerHTML = `
@@ -552,6 +575,29 @@
         }
 
         function createOptionCard(option, type, index) {
+            // Split the aggregated term_description into individual product types
+            const termDescriptions = option.term_description.split(',').map(item => item.trim());
+            
+            // Generate the HTML for the badges/circles
+            const badgeHTML = termDescriptions.map(term => {
+                let badgeClass = '';
+                // Use a simple check to assign a type class for styling
+                const lowerTerm = term.toLowerCase();
+                if (lowerTerm.includes('loan')) {
+                    badgeClass = 'financing';
+                } else if (lowerTerm.includes('lease')) {
+                    badgeClass = 'lease';
+                } else {
+                    badgeClass = 'default'; // Use a default style for anything else
+                }
+                
+                // Capitalize the term for display (e.g., 'new auto loan' -> 'New Auto Loan')
+                const displayTerm = term.charAt(0).toUpperCase() + term.slice(1);
+
+                // We are using the existing option-type styling but applying it multiple times
+                return `<div class="option-type ${badgeClass}">${displayTerm}</div>`;
+            }).join(''); // Join all the badge HTML strings
+
             const card = document.createElement('div');
             card.className = 'option-card';
             card.dataset.type = type;
@@ -560,23 +606,25 @@
             card.innerHTML = `
                 <div class="option-header">
                     <div class="bank-name">${option.bank}</div>
-                    <div class="option-type ${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="option-types-container">
+                        ${badgeHTML}
+                    </div>
                 </div>
                 <div class="option-details">
                     <div class="detail-item">
-                        <div class="detail-label">Interest Rate</div>
-                        <div class="detail-value">${option.rate}%</div>
+                        <div class="detail-label">Interest Rate (APY)</div>
+                        <div class="detail-value">${option.rate_min}% - ${option.rate_max}%</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Term</div>
                         <div class="detail-value">${option.term} months</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Monthly Payment</div>
+                        <div class="detail-label">Est. Monthly Payment (Min Rate)</div>
                         <div class="detail-value monthly-payment">$${option.monthly_payment.toLocaleString()}</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">Total Cost</div>
+                        <div class="detail-label">Est. Total Cost</div>
                         <div class="detail-value">$${option.total_cost.toLocaleString()}</div>
                     </div>
                 </div>
@@ -654,7 +702,8 @@
                 sessionStorage.setItem('selectedOption', JSON.stringify(selectedOption));
                 window.location.href = '/payment';
             } else {
-                alert('Please select a financing option first.');
+                // Use custom modal or message box instead of alert()
+                console.error('Please select a financing option first.');
             }
         }
 
