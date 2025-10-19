@@ -447,6 +447,205 @@
                 flex-direction: column;
             }
         }
+
+        /* Filter Section Styles */
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .filter-header h3 {
+            color: #1e3a8a;
+            margin: 0;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-toggle {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-toggle:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .filter-content {
+            padding: 2rem;
+            background: white;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-group label {
+            color: #374151;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+
+        .filter-checkbox:hover {
+            color: #1e3a8a;
+        }
+
+        .filter-checkbox input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .filter-checkbox input[type="checkbox"]:checked + .checkmark {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .filter-checkbox input[type="checkbox"]:checked + .checkmark::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .range-filter {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .range-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-inputs input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .range-inputs input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .range-inputs span {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .filter-actions .btn {
+            padding: 12px 24px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-header {
+                padding: 1rem;
+            }
+            
+            .filter-content {
+                padding: 1rem;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -482,6 +681,140 @@
 
         <div class="summary-card" id="summaryCard">
             <!-- Summary will be populated by JavaScript -->
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-header">
+                <h3><i class="fas fa-filter"></i> Filter Options</h3>
+                <button class="filter-toggle" onclick="toggleFilters()">
+                    <i class="fas fa-chevron-down" id="filterToggleIcon"></i>
+                    <span id="filterToggleText">Show Filters</span>
+                </button>
+            </div>
+            
+            <div class="filter-content" id="filterContent" style="display: none;">
+                <div class="filter-grid">
+                    <!-- Financing Type Filter -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-handshake"></i> Financing Type</label>
+                        <div class="filter-options">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filterFinancing" checked>
+                                <span class="checkmark"></span>
+                                Financing
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filterLease" checked>
+                                <span class="checkmark"></span>
+                                Lease
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Loan Type Filter -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-car"></i> Loan Type</label>
+                        <div class="filter-options">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filterNewAuto" checked>
+                                <span class="checkmark"></span>
+                                New Auto Loan
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filterUsedAuto" checked>
+                                <span class="checkmark"></span>
+                                Used Auto Loan
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filterRefinance" checked>
+                                <span class="checkmark"></span>
+                                Refinance
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Interest Rate Filter -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-percentage"></i> Interest Rate Range</label>
+                        <div class="range-filter">
+                            <div class="range-inputs">
+                                <input type="number" id="minRate" placeholder="Min" min="0" max="20" step="0.1">
+                                <span>to</span>
+                                <input type="number" id="maxRate" placeholder="Max" min="0" max="20" step="0.1">
+                                <span>%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loan Term Filter -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-calendar"></i> Loan Term</label>
+                        <div class="filter-options">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filter36Months" checked>
+                                <span class="checkmark"></span>
+                                36 months
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filter48Months" checked>
+                                <span class="checkmark"></span>
+                                48 months
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filter60Months" checked>
+                                <span class="checkmark"></span>
+                                60 months
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filter72Months" checked>
+                                <span class="checkmark"></span>
+                                72 months
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" id="filter84Months" checked>
+                                <span class="checkmark"></span>
+                                84 months
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Payment Filter -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-dollar-sign"></i> Monthly Payment Range</label>
+                        <div class="range-filter">
+                            <div class="range-inputs">
+                                <input type="number" id="minPayment" placeholder="Min" min="0" max="2000" step="10">
+                                <span>to</span>
+                                <input type="number" id="maxPayment" placeholder="Max" min="0" max="2000" step="10">
+                                <span>$</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Filter -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-university"></i> Bank/Lender</label>
+                        <select id="bankFilter" multiple>
+                            <option value="all" selected>All Banks</option>
+                            <option value="Toyota Financial Services">Toyota Financial Services</option>
+                            <option value="Chase Auto">Chase Auto</option>
+                            <option value="Bank of America">Bank of America</option>
+                            <option value="Wells Fargo Auto">Wells Fargo Auto</option>
+                            <option value="Capital One Auto">Capital One Auto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-eraser"></i> Clear All
+                    </button>
+                    <button class="btn btn-primary" onclick="applyFilters()">
+                        <i class="fas fa-check"></i> Apply Filters
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="options-container">
@@ -563,6 +896,58 @@
         const preferences = JSON.parse(sessionStorage.getItem('preferences') || '{}');
         const survey = JSON.parse(sessionStorage.getItem('survey') || '{}');
         const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || '{}');
+        
+        // Get chatbot data from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const responsesParam = urlParams.get('responses');
+        let chatbotData = null;
+        if (responsesParam) {
+            try {
+                chatbotData = JSON.parse(responsesParam);
+            } catch (e) {
+                console.error('Error parsing chatbot responses:', e);
+            }
+        }
+        
+        // Extract user data from chatbot responses
+        let userData = null;
+        
+        // Debug: Log the received data
+        console.log('URL params:', window.location.search);
+        console.log('responsesParam:', responsesParam);
+        console.log('Chatbot data received:', chatbotData);
+        
+        // Extract user data from chatbot data
+        if (chatbotData && chatbotData.userData) {
+            userData = {
+                income: chatbotData.userData.income,
+                credit_score: chatbotData.userData.credit_score,
+                down_payment: chatbotData.userData.down_payment,
+                loan_preference: chatbotData.userData.loan_preference
+            };
+            console.log('Using chatbotData.userData:', userData);
+        } else if (chatbotData && chatbotData.user_data) {
+            // Alternative structure
+            userData = {
+                income: chatbotData.user_data.income,
+                credit_score: chatbotData.user_data.credit_score,
+                down_payment: chatbotData.user_data.down_payment,
+                loan_preference: chatbotData.user_data.loan_preference
+            };
+            console.log('Using chatbotData.user_data:', userData);
+        }
+        
+        // Only use defaults if no chatbot data is available
+        if (!userData) {
+            userData = {
+                income: 50000,  // Default income
+                credit_score: 700  // Default credit score
+            };
+            console.log('No chatbot data found, using defaults:', userData);
+        }
+        
+        // Final userData
+        console.log('Final userData:', userData);
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
@@ -570,26 +955,234 @@
             loadFinancingOptions();
         });
 
+        // Filter functionality
+        let allFinancingOptions = [];
+        let allLeasingOptions = [];
+        let filteredFinancingOptions = [];
+        let filteredLeasingOptions = [];
+
+        function toggleFilters() {
+            const filterContent = document.getElementById('filterContent');
+            const toggleIcon = document.getElementById('filterToggleIcon');
+            const toggleText = document.getElementById('filterToggleText');
+            
+            if (filterContent.style.display === 'none') {
+                filterContent.style.display = 'block';
+                toggleIcon.className = 'fas fa-chevron-up';
+                toggleText.textContent = 'Hide Filters';
+            } else {
+                filterContent.style.display = 'none';
+                toggleIcon.className = 'fas fa-chevron-down';
+                toggleText.textContent = 'Show Filters';
+            }
+        }
+
+        function applyFilters() {
+            console.log('Applying filters...');
+            
+            // Get filter values
+            const filters = {
+                financing: document.getElementById('filterFinancing').checked,
+                lease: document.getElementById('filterLease').checked,
+                newAuto: document.getElementById('filterNewAuto').checked,
+                usedAuto: document.getElementById('filterUsedAuto').checked,
+                refinance: document.getElementById('filterRefinance').checked,
+                minRate: parseFloat(document.getElementById('minRate').value) || 0,
+                maxRate: parseFloat(document.getElementById('maxRate').value) || 100,
+                minPayment: parseFloat(document.getElementById('minPayment').value) || 0,
+                maxPayment: parseFloat(document.getElementById('maxPayment').value) || 10000,
+                terms36: document.getElementById('filter36Months').checked,
+                terms48: document.getElementById('filter48Months').checked,
+                terms60: document.getElementById('filter60Months').checked,
+                terms72: document.getElementById('filter72Months').checked,
+                terms84: document.getElementById('filter84Months').checked,
+                bankFilter: document.getElementById('bankFilter').value
+            };
+            
+            console.log('Filter values:', filters);
+            
+            // Filter financing options
+            filteredFinancingOptions = allFinancingOptions.filter(option => {
+                if (!filters.financing) return false;
+                
+                // Check loan type
+                const termDescriptions = option.term_description.toLowerCase();
+                let matchesLoanType = true;
+                if (!filters.newAuto && termDescriptions.includes('new')) matchesLoanType = false;
+                if (!filters.usedAuto && termDescriptions.includes('used')) matchesLoanType = false;
+                if (!filters.refinance && termDescriptions.includes('refinance')) matchesLoanType = false;
+                
+                // Check interest rate range
+                const avgRate = (option.rate_min + option.rate_max) / 2;
+                const matchesRateRange = avgRate >= filters.minRate && avgRate <= filters.maxRate;
+                
+                // Check monthly payment range
+                const matchesPaymentRange = option.monthly_payment >= filters.minPayment && 
+                                          option.monthly_payment <= filters.maxPayment;
+                
+                // Check loan term
+                const matchesTerm = (filters.terms36 && option.term === 36) ||
+                                  (filters.terms48 && option.term === 48) ||
+                                  (filters.terms60 && option.term === 60) ||
+                                  (filters.terms72 && option.term === 72) ||
+                                  (filters.terms84 && option.term === 84);
+                
+                // Check bank filter
+                const matchesBank = filters.bankFilter === 'all' || 
+                                  option.bank.toLowerCase().includes(filters.bankFilter.toLowerCase());
+                
+                return matchesLoanType && matchesRateRange && matchesPaymentRange && 
+                       matchesTerm && matchesBank;
+            });
+            
+            // Filter leasing options
+            filteredLeasingOptions = allLeasingOptions.filter(option => {
+                if (!filters.lease) return false;
+                
+                // Check interest rate range
+                const avgRate = (option.rate_min + option.rate_max) / 2;
+                const matchesRateRange = avgRate >= filters.minRate && avgRate <= filters.maxRate;
+                
+                // Check monthly payment range
+                const matchesPaymentRange = option.monthly_payment >= filters.minPayment && 
+                                          option.monthly_payment <= filters.maxPayment;
+                
+                // Check loan term
+                const matchesTerm = (filters.terms36 && option.term === 36) ||
+                                  (filters.terms48 && option.term === 48) ||
+                                  (filters.terms60 && option.term === 60) ||
+                                  (filters.terms72 && option.term === 72) ||
+                                  (filters.terms84 && option.term === 84);
+                
+                // Check bank filter
+                const matchesBank = filters.bankFilter === 'all' || 
+                                  option.bank.toLowerCase().includes(filters.bankFilter.toLowerCase());
+                
+                return matchesRateRange && matchesPaymentRange && matchesTerm && matchesBank;
+            });
+            
+            console.log('Filtered financing options:', filteredFinancingOptions.length);
+            console.log('Filtered leasing options:', filteredLeasingOptions.length);
+            
+            // Update the display
+            displayFilteredOptions();
+        }
+
+        function displayFilteredOptions() {
+            // Update financing options
+            financingOptions = [...filteredFinancingOptions];
+            displayFinancingOptions();
+            
+            // Update leasing options
+            leasingOptions = [...filteredLeasingOptions];
+            displayLeasingOptions();
+            
+            // Update section headers with counts
+            const financingHeader = document.querySelector('#financingOptions').parentElement.querySelector('h3');
+            const leasingHeader = document.querySelector('#leasingOptions').parentElement.querySelector('h3');
+            
+            financingHeader.innerHTML = `<i class="fas fa-handshake"></i> Financing Options (${filteredFinancingOptions.length})`;
+            leasingHeader.innerHTML = `<i class="fas fa-calendar-alt"></i> Leasing Options (${filteredLeasingOptions.length})`;
+            
+            // Show/hide sections based on filter selection
+            const financingSection = document.querySelector('#financingOptions').parentElement;
+            const leasingSection = document.querySelector('#leasingOptions').parentElement;
+            const optionsContainer = document.querySelector('.options-container');
+            
+            const showFinancing = filteredFinancingOptions.length > 0;
+            const showLeasing = filteredLeasingOptions.length > 0;
+            
+            // Show/hide sections
+            financingSection.style.display = showFinancing ? 'block' : 'none';
+            leasingSection.style.display = showLeasing ? 'block' : 'none';
+            
+            // Adjust container layout based on visible sections
+            if (showFinancing && showLeasing) {
+                // Both sections visible - use two-column layout
+                optionsContainer.style.gridTemplateColumns = '1fr 1fr';
+            } else if (showFinancing || showLeasing) {
+                // Only one section visible - use single column layout
+                optionsContainer.style.gridTemplateColumns = '1fr';
+            } else {
+                // No sections visible - show message
+                optionsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-filter" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h3>No options match your current filters</h3>
+                        <p>Try adjusting your filter criteria or click "Clear All" to see all available options.</p>
+                        <button class="btn btn-primary" onclick="clearFilters()" style="margin-top: 1rem;">
+                            <i class="fas fa-eraser"></i> Clear All Filters
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function clearFilters() {
+            // Reset all checkboxes to checked
+            document.getElementById('filterFinancing').checked = true;
+            document.getElementById('filterLease').checked = true;
+            document.getElementById('filterNewAuto').checked = true;
+            document.getElementById('filterUsedAuto').checked = true;
+            document.getElementById('filterRefinance').checked = true;
+            document.getElementById('filter36Months').checked = true;
+            document.getElementById('filter48Months').checked = true;
+            document.getElementById('filter60Months').checked = true;
+            document.getElementById('filter72Months').checked = true;
+            document.getElementById('filter84Months').checked = true;
+            
+            // Clear range inputs
+            document.getElementById('minRate').value = '';
+            document.getElementById('maxRate').value = '';
+            document.getElementById('minPayment').value = '';
+            document.getElementById('maxPayment').value = '';
+            
+            // Reset bank filter
+            document.getElementById('bankFilter').value = 'all';
+            
+            // Reset options to show all
+            filteredFinancingOptions = [...allFinancingOptions];
+            filteredLeasingOptions = [...allLeasingOptions];
+            
+            // Restore original layout
+            const optionsContainer = document.querySelector('.options-container');
+            optionsContainer.style.gridTemplateColumns = '1fr 1fr';
+            
+            // Show both sections
+            const financingSection = document.querySelector('#financingOptions').parentElement;
+            const leasingSection = document.querySelector('#leasingOptions').parentElement;
+            financingSection.style.display = 'block';
+            leasingSection.style.display = 'block';
+            
+            displayFilteredOptions();
+        }
+
         function initializeCalculator() {
             // Initialize calculator with selected vehicle price
             if (selectedVehicle.price) {
                 document.getElementById('vehiclePrice').value = selectedVehicle.price;
             }
 
-            // Initialize down payment from the survey data
-            if (survey.downPayment) {
-                document.getElementById('downPayment').value = survey.downPayment;
+            // Initialize down payment from user data
+            if (userData.down_payment) {
+                document.getElementById('downPayment').value = userData.down_payment;
+            } else {
+                // Set default down payment (10% of vehicle price)
+                const defaultDownPayment = Math.round((selectedVehicle.price || 30000) * 0.1);
+                document.getElementById('downPayment').value = defaultDownPayment;
             }
             
-            // Initialize loan term from the survey data, if set and valid
-            if (survey.loanTerm) {
+            // Initialize loan term from user data
+            if (userData.loan_preference) {
                 const loanTermSelect = document.getElementById('loanTerm');
-                // Check if the survey term is one of the available options
-                const validTerm = Array.from(loanTermSelect.options).some(opt => opt.value === survey.loanTerm);
-                
-                if (validTerm) {
-                    loanTermSelect.value = survey.loanTerm;
+                if (userData.loan_preference === 'lease') {
+                    loanTermSelect.value = '36';
+                } else {
+                    loanTermSelect.value = '60';
                 }
+            } else {
+                // Set default loan term
+                document.getElementById('loanTerm').value = '60';
             }
         }
 
@@ -606,11 +1199,11 @@
                 </div>
                 <div class="summary-item">
                     <div class="label">Annual Income</div>
-                    <div class="value">$${(survey.income || 0).toLocaleString()}</div>
+                    <div class="value">$${userData.income.toLocaleString()}</div>
                 </div>
                 <div class="summary-item">
                     <div class="label">Credit Score</div>
-                    <div class="value">${survey.creditScore || 'N/A'}</div>
+                    <div class="value">${userData.credit_score}</div>
                 </div>
             `;
         }
@@ -623,8 +1216,8 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        credit_score: survey.creditScore || 700,
-                        income: survey.income || 50000,
+                        credit_score: userData.credit_score,
+                        income: userData.income,
                         vehicle_price: selectedVehicle.price || 30000
                     })
                 });
@@ -634,6 +1227,12 @@
                 // Separate financing and leasing options
                 financingOptions = options.filter(option => option.type === 'financing');
                 leasingOptions = options.filter(option => option.type === 'lease');
+
+                // Initialize filter arrays
+                allFinancingOptions = [...financingOptions];
+                allLeasingOptions = [...leasingOptions];
+                filteredFinancingOptions = [...financingOptions];
+                filteredLeasingOptions = [...leasingOptions];
 
                 displayOptions();
             } catch (error) {
@@ -803,12 +1402,13 @@
         if (selectedVehicle.price) {
             document.getElementById('vehiclePrice').value = selectedVehicle.price;
         }
-        if (survey.downPayment) {
-            document.getElementById('downPayment').value = survey.downPayment;
-        }
-        if (survey.loanTerm) {
-            document.getElementById('loanTerm').value = survey.loanTerm;
-        }
+        
+        // Set default down payment (10% of vehicle price)
+        const defaultDownPayment = Math.round((selectedVehicle.price || 30000) * 0.1);
+        document.getElementById('downPayment').value = defaultDownPayment;
+        
+        // Set default loan term
+        document.getElementById('loanTerm').value = '60';
     </script>
 </body>
 </html>

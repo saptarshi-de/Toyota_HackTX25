@@ -900,7 +900,7 @@
                         ` : ''}
                         
                         <div class="action-buttons">
-                            <a href="/financing" class="action-button" onclick="goToFinancing(event, ${JSON.stringify(recommendations)}, ${JSON.stringify(userData)})">
+                            <a href="/financing" class="action-button">
                                 <i class="fas fa-calculator"></i> View Financing Options
                             </a>
                             <a href="/survey" class="action-button secondary">
@@ -1007,30 +1007,9 @@
                     this.showError('Failed to reset conversation. Please refresh the page.');
                 }
             }
+
         }
 
-        // Global function to handle navigation to financing page
-        function goToFinancing(event, recommendations, userData) {
-            event.preventDefault();
-            
-            // Store data in session storage
-            sessionStorage.setItem('chatbotRecommendations', JSON.stringify(recommendations));
-            sessionStorage.setItem('chatbotUserData', JSON.stringify(userData));
-            
-            // Get vehicle information
-            const selectedVehicle = JSON.parse(sessionStorage.getItem('selectedVehicle') || 'null');
-            let vehicleInfo = '';
-            if (selectedVehicle) {
-                vehicleInfo = `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.trim} - $${selectedVehicle.price.toLocaleString()}`;
-            }
-            
-            // Redirect to financing page with data
-            const params = new URLSearchParams();
-            params.set('responses', JSON.stringify({recommendations, userData}));
-            params.set('vehicle_info', vehicleInfo);
-            
-            window.location.href = `/financing?${params.toString()}`;
-        }
 
         // Initialize chatbot when page loads
         let chatbot;
