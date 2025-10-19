@@ -18,6 +18,78 @@
             background: #f8fafc;
             color: #333;
         }
+        /* Navbar Styles */
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: #fbbf24;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #fbbf24;
+        }
+
+        .cta-button {
+            background: #fbbf24;
+            color: #1e3a8a;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+        }
+
 
         .container {
             max-width: 1200px;
@@ -378,6 +450,26 @@
     </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <header>
+        <nav class="navbar-container">
+            <div class="logo">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <i class="fas fa-car"></i>
+                    Toyota Financial
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/#vehicles">Vehicles</a></li>
+                <li><a href="/#features">Features</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/chatbot">AI Advisor</a></li>
+            </ul>
+            <a href="/preferences" class="cta-button">Get Started</a>
+        </nav>
+    </header>
+
+
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-balance-scale"></i> Financing Options</h1>
